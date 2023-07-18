@@ -36,16 +36,12 @@ artist-statement-wordcount:
     - echo "Word Count:"
     - var="$(cat artist-statement.md | wc -w)"
     - > 
-      if (( $var > 100)); then
-        exit 0 ;
-      else
+      if (( $var < 100)); then
         echo "Your artist statement should be more than 100 words!";
         exit 1;
       fi
     - >
       if (( $var > 250)); then
-        exit 0 ;
-      else
         echo "Your artist statement should only be 200 words!";
         exit 1;
       fi
