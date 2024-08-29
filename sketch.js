@@ -4,57 +4,87 @@ let maxFill = 150;          // Maximum fill level
 let fillSpeed = 4;          // Speed at which the glass fills
 let increment = 30;         // Amount to fill with each click
 
-let greenAmount = 0;        // Amount of green liquid
-let redAmount = 0;          // Amount of red liquid
-let blueAmount = 0;         // Amount of blue liquid
-let yellowAmount = 0;       // Amount of yellow liquid
-
+let liquidColors = [];      // Store the colors of the liquid
 let glassFilled = false;    // Flag to check if the glass is full
-let resetButton;            // Button to reset the drink
+
+let bottles = [];           // Array to store all bottle objects
+
+let glassX = 600;           // Initial x-position of the glass
+let glassY = 500;           // y-position of the glass (fixed)
+let glassWidth = 100;       // Width of the glass
+let glassHeight = 150;      // Height of the glass
+let dragging = false;       // Flag to check if the glass is being dragged
+let offsetX = 0;            // Offset to maintain relative position while dragging
+
+let bellX = 1100;           // x-position of the bell
+let bellY = 590;            // y-position of the bell (aligned with the glass)
+let bellSize = 80;          // Size of the bell
 
 function setup() {
-  createCanvas(1200, 800);  // Adjust canvas size to fit all bottles
+  createCanvas(1280, 800);  // Adjust canvas size to 1280x800
+
+  // Define bottles with different properties on two shelves
+  let shelfWidth = 0.75 * width;  // 75% of canvas width
+  let bottleWidth = shelfWidth / 4 - 20; // Space for 4 bottles per shelf with padding
+  let bottleHeight = 150;
   
-  // Create reset button and position it below the glass
-  resetButton = createButton('Reset Drink');
-  resetButton.position(225, 370);
-  resetButton.mousePressed(resetDrink);
-  resetButton.hide();  // Initially hidden until the glass is filled
+  // First shelf (y position = 100)
+  bottles.push(new Bottle(40, 100, bottleWidth, bottleHeight, '#C83232', increment));  // Red bottle
+  bottles.push(new Bottle(40 + bottleWidth + 20, 100, bottleWidth, bottleHeight, '#32C832', increment));  // Green bottle
+  bottles.push(new Bottle(40 + 2 * (bottleWidth + 20), 100, bottleWidth, bottleHeight, '#3232C8', increment));  // Blue bottle
+  bottles.push(new Bottle(40 + 3 * (bottleWidth + 20), 100, bottleWidth, bottleHeight, '#FFFF32', increment));  // Yellow bottle
+
+  // Second shelf (y position = 300)
+  bottles.push(new Bottle(40, 300, bottleWidth, bottleHeight, '#FF5733', increment));  // Orange bottle
+  bottles.push(new Bottle(40 + bottleWidth + 20, 300, bottleWidth, bottleHeight, '#33FFBD', increment));  // Cyan bottle
+  bottles.push(new Bottle(40 + 2 * (bottleWidth + 20), 300, bottleWidth, bottleHeight, '#FF33FF', increment));  // Magenta bottle
+  bottles.push(new Bottle(40 + 3 * (bottleWidth + 20), 300, bottleWidth, bottleHeight, '#A832FF', increment));  // Purple bottle
 }
 
 function draw() {
   background(220);
 
-  // Calculate the color of the liquid based on the amounts of each color
-  let totalAmount = greenAmount + redAmount + blueAmount + yellowAmount;
-  let greenRatio = greenAmount / totalAmount || 0;
-  let redRatio = redAmount / totalAmount || 0;
-  let blueRatio = blueAmount / totalAmount || 0;
-  let yellowRatio = yellowAmount / totalAmount || 0;
+  // Draw the table
+  fill(150);
+  rect(0, glassY + glassHeight, width, 30);  // Table rectangle
 
-  // Vibrant color mixing formula
-  let liquidColor = color(
-    min(255, redRatio * 255 + greenRatio * 50 + blueRatio * 50 + yellowRatio * 255),   // Red component
-    min(255, greenRatio * 255 + redRatio * 50 + blueRatio * 50 + yellowRatio * 255),   // Green component
-    min(255, blueRatio * 255 + redRatio * 50 + greenRatio * 50 + yellowRatio * 50)     // Blue component
-  );
+  // Draw the concierge bell
+  drawBell(bellX, bellY, bellSize);
+
+  // Calculate the color of the liquid based on the amounts of each color
+  let totalAmount = liquidColors.reduce((acc, val) => acc + val.amount, 0);
+  let liquidColor = color(0, 0, 0);
+
+  // Compute the mixed color of the liquid
+  if (totalAmount > 0) {
+    let r = 0, g = 0, b = 0;
+    for (let lc of liquidColors) {
+      let colorRatio = lc.amount / totalAmount;
+      r += colorRatio * red(lc.color);
+      g += colorRatio * green(lc.color);
+      b += colorRatio * blue(lc.color);
+    }
+    liquidColor = color(min(255, r), min(255, g), min(255, b));
+  }
+
+  // Constrain the glass so it doesn't overlap with the bell
+  glassX = constrain(glassX, 0, bellX - glassWidth - 10);
 
   // Draw the glass outline
   stroke(0);
   strokeWeight(2);
   noFill();
-  rect(200, 200, 100, 150);  // A basic rectangular glass shape
+  rect(glassX, glassY, glassWidth, glassHeight);  // A basic rectangular glass shape
 
   // Draw the liquid in the glass
   noStroke();
-  fill(liquidColor);  // Color determined by the mixture of green, red, blue, and yellow liquids
-  rect(200, 350 - fillLevel, 100, fillLevel);  // Fill the glass from the bottom up
+  fill(liquidColor);  // Color determined by the mixture of liquids
+  rect(glassX, glassY + glassHeight - fillLevel, glassWidth, fillLevel);  // Fill the glass from the bottom up
 
-  // Draw the bottles with hover effect
-  drawBottle(320, 150, color(200, 50, 50));  // Red bottle
-  drawBottle(130, 150, color(50, 200, 50));  // Green bottle
-  drawBottle(40, 150, color(50, 50, 200));   // Blue bottle
-  drawBottle(410, 150, color(255, 255, 50)); // Yellow bottle
+  // Draw all bottles
+  for (let bottle of bottles) {
+    bottle.display();
+  }
 
   // Smoothly animate the liquid filling
   if (fillLevel < targetFill) {
@@ -67,108 +97,120 @@ function draw() {
   // Check if the glass is filled
   if (fillLevel >= maxFill) {
     glassFilled = true;
-    resetButton.show();  // Show reset button when the glass is full
     fill(0);
     textSize(24);
     textAlign(CENTER);
-    text("Enjoy your drink!", 250, 190);
-    // Add any additional effects like flashing the glass or sparkles here
+    text("Enjoy your drink!", glassX + glassWidth / 2, glassY - 10);
   }
-}
-
-function drawBottle(x, y, bottleColor) {
-  // Check if the mouse is hovering over the bottle
-  let isHovering = mouseX > x && mouseX < x + 50 && mouseY > y && mouseY < y + 200;
-
-  push();  // Save the current transformation matrix
-
-  // Apply scaling and bobbing effect if hovering
-  if (isHovering) {
-    translate(x + 25, y + 100); // Move to the center of the bottle
-    scale(1.1); // Scale up slightly
-    translate(-25, -100); // Move back to original position
-    translate(0, sin(frameCount * 0.1) * 5); // Bobbing effect
-  } else {
-    translate(x, y);
-  }
-
-  // Draw the bottle
-  stroke(0);
-  strokeWeight(2);
-  fill(bottleColor);
-  rect(0, 0, 50, 200);  // Bottle body
-  ellipse(25, 0, 50, 30);  // Bottle top
-
-  pop();  // Restore the transformation matrix
 }
 
 function mousePressed() {
+  // Check if the glass is clicked to start dragging
+  if (mouseX > glassX && mouseX < glassX + glassWidth && mouseY > glassY && mouseY < glassY + glassHeight) {
+    dragging = true;
+    offsetX = mouseX - glassX;  // Calculate offset for smooth dragging
+  }
+
+  // Check if the bell is clicked
+  if (dist(mouseX, mouseY, bellX + bellSize / 2, bellY + bellSize / 2) < bellSize / 2) {
+    resetDrink();
+  }
+
   if (!glassFilled) {  // Only allow filling if the glass isn't full
-    // Check if the mouse is within the bounds of the red bottle
-    if (mouseX > 320 && mouseX < 370 && mouseY > 150 && mouseY < 350) {
-      targetFill += increment;
-      redAmount += increment;
-      if (targetFill > maxFill) {
-        targetFill = maxFill;
-      }
-      if (redAmount + greenAmount + blueAmount + yellowAmount > maxFill) {
-        redAmount = maxFill - (greenAmount + blueAmount + yellowAmount);
-      }
-    }
-
-    // Check if the mouse is within the bounds of the green bottle
-    if (mouseX > 130 && mouseX < 180 && mouseY > 150 && mouseY < 350) {
-      targetFill += increment;
-      greenAmount += increment;
-      if (targetFill > maxFill) {
-        targetFill = maxFill;
-      }
-      if (redAmount + greenAmount + blueAmount + yellowAmount > maxFill) {
-        greenAmount = maxFill - (redAmount + blueAmount + yellowAmount);
-      }
-    }
-
-    // Check if the mouse is within the bounds of the blue bottle
-    if (mouseX > 40 && mouseX < 90 && mouseY > 150 && mouseY < 350) {
-      targetFill += increment;
-      blueAmount += increment;
-      if (targetFill > maxFill) {
-        targetFill = maxFill;
-      }
-      if (redAmount + greenAmount + blueAmount + yellowAmount > maxFill) {
-        blueAmount = maxFill - (redAmount + greenAmount + yellowAmount);
-      }
-    }
-
-    // Check if the mouse is within the bounds of the yellow bottle
-    if (mouseX > 410 && mouseX < 460 && mouseY > 150 && mouseY < 350) {
-      targetFill += increment;
-      yellowAmount += increment;
-      if (targetFill > maxFill) {
-        targetFill = maxFill;
-      }
-      if (redAmount + greenAmount + blueAmount + yellowAmount > maxFill) {
-        yellowAmount = maxFill - (redAmount + greenAmount + blueAmount);
-      }
+    for (let bottle of bottles) {
+      bottle.checkClick();
     }
   }
+}
+
+function mouseDragged() {
+  // Drag the glass horizontally if dragging is active
+  if (dragging) {
+    glassX = mouseX - offsetX;
+    // Constrain the glass within the canvas width and before the bell
+    glassX = constrain(glassX, 0, bellX - glassWidth - 10);
+  }
+}
+
+function mouseReleased() {
+  // Stop dragging when the mouse is released
+  dragging = false;
 }
 
 function resetDrink() {
   fillLevel = 0;
   targetFill = 0;
-  greenAmount = 0;
-  redAmount = 0;
-  blueAmount = 0;
-  yellowAmount = 0;
+  liquidColors = [];
   glassFilled = false;
-  resetButton.hide();  // Hide reset button after resetting
 }
 
-// when you hit the spacebar, what's currently on the canvas will be saved (as a
-// "thumbnail.png" file) to your downloads folder
-function keyTyped() {
-  if (key === " ") {
-    saveCanvas("thumbnail.png");
+// Function to draw the concierge bell
+function drawBell(x, y, size) {
+  // Draw the bell base
+  fill(150);
+  stroke(0);
+  strokeWeight(2);
+
+  arc(x + size / 2, y + size * 0.8, size, size, PI, TWO_PI);  // Dome of the bell
+
+  ellipse(x + size / 2, y + size * 0.25, size * 0.2, size * 0.2);  // Button on top
+}
+
+class Bottle {
+  constructor(x, y, w, h, hexColor, increment) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.color = color(hexColor);
+    this.increment = increment;
+    this.amount = 0;
+  }
+
+  display() {
+    // Check if the mouse is hovering over the bottle
+    let isHovering = mouseX > this.x && mouseX < this.x + this.w && mouseY > this.y && mouseY < this.y + this.h;
+
+    push();  // Save the current transformation matrix
+
+    // Apply scaling and bobbing effect if hovering
+    if (isHovering) {
+      translate(this.x + this.w / 2, this.y + this.h / 2); // Move to the center of the bottle
+      scale(1.1); // Scale up slightly
+      translate(-this.w / 2, -this.h / 2); // Move back to original position
+      translate(0, sin(frameCount * 0.1) * 5); // Bobbing effect
+    } else {
+      translate(this.x, this.y);
+    }
+
+    // Draw the bottle
+    stroke(0);
+    strokeWeight(2);
+    fill(this.color);
+    rect(0, 0, this.w, this.h);  // Bottle body
+    ellipse(this.w / 2, 0, this.w, 30);  // Bottle top
+
+    pop();  // Restore the transformation matrix
+  }
+
+  checkClick() {
+    if (mouseX > this.x && mouseX < this.x + this.w && mouseY > this.y && mouseY < this.y + this.h) {
+      targetFill += this.increment;
+      this.amount += this.increment;
+
+      let existingColor = liquidColors.find(lc => lc.color.toString() === this.color.toString());
+      if (existingColor) {
+        existingColor.amount += this.increment;
+      } else {
+        liquidColors.push({ color: this.color, amount: this.increment });
+      }
+
+      if (targetFill > maxFill) {
+        targetFill = maxFill;
+      }
+      if (liquidColors.reduce((acc, val) => acc + val.amount, 0) > maxFill) {
+        this.amount = maxFill - liquidColors.reduce((acc, val) => acc + val.amount, 0) + this.amount;
+      }
+    }
   }
 }
