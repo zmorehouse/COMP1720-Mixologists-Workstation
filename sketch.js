@@ -42,10 +42,11 @@ function setup() {
   bottles.push(new Bottle(150, 100, 80, 150, '#32C832', increment, drawBottle2));  
   bottles.push(new Bottle(260, 100, 50, 200, '#3232C8', increment, drawBottle3));  
 }
-
 function draw() {
   artworkBackground();
   drawBell(800, 600, 45); 
+
+  let isHoveringOverInteractable = false; // Track whether the cursor is over an interactive element
 
   // Colour and glass mixing
   let totalAmount = liquidColors.reduce((acc, val) => acc + val.amount, 0);
@@ -62,12 +63,33 @@ function draw() {
   }
 
   // Constrain and draw glass
-  glassX = constrain(glassX, 0, 800 - glassWidth - 10);  // Static value used here
+  glassX = constrain(glassX, 0, 800 - glassWidth - 10);
   drawGlass(glassX, glassY, glassWidth, glassHeight, liquidColor);
 
-  // Draw bottles
+  // Check if hovering over the glass
+  if (mouseX > glassX && mouseX < glassX + glassWidth && mouseY > glassY && mouseY < glassY + glassHeight) {
+    cursor('pointer');  // Change cursor to pointer
+    isHoveringOverInteractable = true;
+  }
+
+  // Check if hovering over the bell
+  if (dist(mouseX, mouseY, 800 + 45 / 2, 600 + 45 / 2) < 45 / 2) {  // Hover detection for the bell
+    cursor('pointer');  // Change cursor to pointer
+    isHoveringOverInteractable = true;
+  }
+
+  // Draw bottles and check if hovering over them
   for (let bottle of bottles) {
     bottle.display();
+    if (bottle.isMouseOver()) {
+      cursor('pointer');  // Change cursor to pointer
+      isHoveringOverInteractable = true;
+    }
+  }
+
+  // Reset cursor if not hovering over any interactive elements
+  if (!isHoveringOverInteractable) {
+    cursor('default');
   }
 
   // Liquid filling logic
@@ -85,6 +107,7 @@ function draw() {
     text("Enjoy your drink!", glassX + glassWidth / 2, glassY - 10);
   }
 }
+
 
 function mousePressed() {
   
@@ -132,21 +155,25 @@ function drawGlass(x, y, w, h, liquidColor) {
   noStroke();
   fill(liquidColor); 
   rect(x, y + h + 5 - fillLevel, w, fillLevel, 7, 7, 10, 10);  
-  
+
   // Draw the glass body with a 3D effect
   stroke(colors.glassOutline);
   strokeWeight(1);
   fill(colors.glassFill);
-  
+
   // Draw the sidewalls of the glass
-  beginShape();
   line(x, y + 10, x, y + h);         // Left side line
   line(x + w, y + 10, x + w, y + h); // Right side line
-  endShape(CLOSE);
 
-  // Draw the bottom ellipse to give a 3D effect
+  // Draw the front half of the bottom ellipse for a 3D effect
   fill(colors.glassFill);
-  ellipse(x + w / 2, y + h, w, 10); // Small ellipse at the bottom
+  if (fillLevel === 0) {
+    // If not filled, draw the full bottom ellipse
+    ellipse(x + w / 2, y + h, w, 10); // Full ellipse at the bottom
+  } else {
+    // If filled, draw only the front half without the line cutting across
+    arc(x + w / 2, y + h, w, 10, 0, PI, OPEN); // Front half of the bottom ellipse without the line
+  }
 
   // Draw the handle with a 3D effect
   noFill();
@@ -154,13 +181,15 @@ function drawGlass(x, y, w, h, liquidColor) {
   strokeWeight(3);
   arc(x - 2, y + h / 2, 30, 40, PI / 2, 3 * PI / 2);  // Handle on the side
 
-  // Add a top ellipse to create an open look
+  // Draw the top ellipse for the open look
   strokeWeight(1);
   fill(colors.glassFill);
-  ellipse(x + w / 2, y + 10, w, 10);  // Top ellipse for the open top of the glass
+  ellipse(x + w / 2, y + 10, w, 10);  // Top ellipse
 
   noStroke(); // Ensure no stroke for the rest of the drawing
 }
+
+
 
 
 // Draw the bell
@@ -327,3 +356,4 @@ function keyTyped() {
     saveCanvas("thumbnail.png");
   }
 }
+
