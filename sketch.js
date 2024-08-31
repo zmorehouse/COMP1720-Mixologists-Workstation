@@ -1,61 +1,55 @@
-let fillLevel = 0;          // Current fill level
-let targetFill = 0;         // Target fill level
-let maxFill = 150;          // Maximum fill level
-let fillSpeed = 4;          // Speed at which the glass fills
-let increment = 30;         // Amount to fill with each click
+let colors = {
+  darkBrown1: '#40292C',
+  darkBrown2: '#4C342E',
+  darkBrown3: '#694A43',
+  mediumBrown1: '#745852',
+  mediumBrown2: '#736058',
+  lightBrown: '#9D8277',
+  lightCream: '#E7D7C1',
+  darkGray: '#656668',
+  darkRed1: '#6E0F0B',
+  darkRed2: '#8C1D1C',
+  shelfBrown: '#624A45',
+  glassOutline: 'rgba(255, 255, 255, 0.8)', 
+  glassFill: 'rgba(255, 255, 255, 0.2)' 
+};
 
-let liquidColors = [];      // Store the colors of the liquid
-let glassFilled = false;    // Flag to check if the glass is full
+// Glass Filling
+let fillLevel = 0;          
+let targetFill = 0;         
+let maxFill = 110;         
+let fillSpeed = 4;         
+let increment = 30;        
+let liquidColors = [];     
+let glassFilled = false;    
 
-let bottles = [];           // Array to store all bottle objects
+let bottles = [];           
 
-let glassX = 600;           // Initial x-position of the glass
-let glassY = 500;           // y-position of the glass (fixed)
-let glassWidth = 100;       // Width of the glass
-let glassHeight = 150;      // Height of the glass
-let dragging = false;       // Flag to check if the glass is being dragged
-let offsetX = 0;            // Offset to maintain relative position while dragging
-
-let bellX = 1100;           // x-position of the bell
-let bellY = 590;            // y-position of the bell (aligned with the glass)
-let bellSize = 80;          // Size of the bell
+// Glass Vars
+let glassX = 50;           
+let glassY = 520;           
+let glassWidth = 65;       
+let glassHeight = 110;      
+let dragging = false;       
+let offsetX = 0;            
 
 function setup() {
-  createCanvas(1280, 800);  // Adjust canvas size to 1280x800
-
-  // Define bottles with different properties on two shelves
-  let shelfWidth = 0.75 * width;  // 75% of canvas width
-  let bottleWidth = shelfWidth / 4 - 20; // Space for 4 bottles per shelf with padding
-  let bottleHeight = 150;
+  createCanvas(1280, 800);
+  artworkBackground();
   
-  // First shelf (y position = 100)
-  bottles.push(new Bottle(40, 100, bottleWidth, bottleHeight, '#C83232', increment));  // Red bottle
-  bottles.push(new Bottle(40 + bottleWidth + 20, 100, bottleWidth, bottleHeight, '#32C832', increment));  // Green bottle
-  bottles.push(new Bottle(40 + 2 * (bottleWidth + 20), 100, bottleWidth, bottleHeight, '#3232C8', increment));  // Blue bottle
-  bottles.push(new Bottle(40 + 3 * (bottleWidth + 20), 100, bottleWidth, bottleHeight, '#FFFF32', increment));  // Yellow bottle
-
-  // Second shelf (y position = 300)
-  bottles.push(new Bottle(40, 300, bottleWidth, bottleHeight, '#FF5733', increment));  // Orange bottle
-  bottles.push(new Bottle(40 + bottleWidth + 20, 300, bottleWidth, bottleHeight, '#33FFBD', increment));  // Cyan bottle
-  bottles.push(new Bottle(40 + 2 * (bottleWidth + 20), 300, bottleWidth, bottleHeight, '#FF33FF', increment));  // Magenta bottle
-  bottles.push(new Bottle(40 + 3 * (bottleWidth + 20), 300, bottleWidth, bottleHeight, '#A832FF', increment));  // Purple bottle
+  // Add new bottles to array
+  bottles.push(new Bottle(40, 100, 60, 180, '#C83232', increment, drawBottle1)); 
+  bottles.push(new Bottle(150, 100, 80, 150, '#32C832', increment, drawBottle2));  
+  bottles.push(new Bottle(260, 100, 50, 200, '#3232C8', increment, drawBottle3));  
 }
 
 function draw() {
-  background(220);
+  artworkBackground();
+  drawBell(800, 600, 45); 
 
-  // Draw the table
-  fill(150);
-  rect(0, glassY + glassHeight, width, 30);  // Table rectangle
-
-  // Draw the concierge bell
-  drawBell(bellX, bellY, bellSize);
-
-  // Calculate the color of the liquid based on the amounts of each color
+  // Colour and glass mixing
   let totalAmount = liquidColors.reduce((acc, val) => acc + val.amount, 0);
   let liquidColor = color(0, 0, 0);
-
-  // Compute the mixed color of the liquid
   if (totalAmount > 0) {
     let r = 0, g = 0, b = 0;
     for (let lc of liquidColors) {
@@ -67,34 +61,22 @@ function draw() {
     liquidColor = color(min(255, r), min(255, g), min(255, b));
   }
 
-  // Constrain the glass so it doesn't overlap with the bell
-  glassX = constrain(glassX, 0, bellX - glassWidth - 10);
+  // Constrain and draw glass
+  glassX = constrain(glassX, 0, 800 - glassWidth - 10);  // Static value used here
+  drawGlass(glassX, glassY, glassWidth, glassHeight, liquidColor);
 
-  // Draw the glass outline
-  stroke(0);
-  strokeWeight(2);
-  noFill();
-  rect(glassX, glassY, glassWidth, glassHeight);  // A basic rectangular glass shape
-
-  // Draw the liquid in the glass
-  noStroke();
-  fill(liquidColor);  // Color determined by the mixture of liquids
-  rect(glassX, glassY + glassHeight - fillLevel, glassWidth, fillLevel);  // Fill the glass from the bottom up
-
-  // Draw all bottles
+  // Draw bottles
   for (let bottle of bottles) {
     bottle.display();
   }
 
-  // Smoothly animate the liquid filling
+  // Liquid filling logic
   if (fillLevel < targetFill) {
     fillLevel += fillSpeed;
     if (fillLevel > targetFill) {
-      fillLevel = targetFill;  // Ensure we don't overfill
+      fillLevel = targetFill;
     }
   }
-
-  // Check if the glass is filled
   if (fillLevel >= maxFill) {
     glassFilled = true;
     fill(0);
@@ -105,18 +87,20 @@ function draw() {
 }
 
 function mousePressed() {
-  // Check if the glass is clicked to start dragging
+  
+  // Check if the glass is clicked
   if (mouseX > glassX && mouseX < glassX + glassWidth && mouseY > glassY && mouseY < glassY + glassHeight) {
     dragging = true;
-    offsetX = mouseX - glassX;  // Calculate offset for smooth dragging
+    offsetX = mouseX - glassX; 
   }
 
   // Check if the bell is clicked
-  if (dist(mouseX, mouseY, bellX + bellSize / 2, bellY + bellSize / 2) < bellSize / 2) {
+  if (dist(mouseX, mouseY, 800 + 45 / 2, 600 + 45 / 2) < 45 / 2) {  // Static values used here
     resetDrink();
   }
-
-  if (!glassFilled) {  // Only allow filling if the glass isn't full
+  
+  // Check if bottle is clicked
+  if (!glassFilled) {  
     for (let bottle of bottles) {
       bottle.checkClick();
     }
@@ -124,16 +108,13 @@ function mousePressed() {
 }
 
 function mouseDragged() {
-  // Drag the glass horizontally if dragging is active
   if (dragging) {
     glassX = mouseX - offsetX;
-    // Constrain the glass within the canvas width and before the bell
-    glassX = constrain(glassX, 0, bellX - glassWidth - 10);
+    glassX = constrain(glassX, 0, 800 - glassWidth - 10);  // Static value used here
   }
 }
 
 function mouseReleased() {
-  // Stop dragging when the mouse is released
   dragging = false;
 }
 
@@ -144,57 +125,88 @@ function resetDrink() {
   glassFilled = false;
 }
 
-// Function to draw the concierge bell
+
+// Draw the glass and liquid in it
+function drawGlass(x, y, w, h, liquidColor) {
+  noStroke();
+  fill(liquidColor); 
+  rect(x, y + h - fillLevel, w, fillLevel, 3);  
+  stroke(colors.glassOutline);
+  strokeWeight(1)
+  fill(colors.glassFill);
+  rect(x, y, w, h, 3); 
+  noFill();
+  stroke(colors.glassOutline);
+  strokeWeight(3);
+  arc(x -2, y + h / 2, 30, 40, PI / 2, 3 * PI / 2);  // Handle on the side
+  noStroke();
+
+}
+
+// Draw the bell
 function drawBell(x, y, size) {
-  // Draw the bell base
   fill(150);
   stroke(0);
-  strokeWeight(2);
+  strokeWeight(1);
+  ellipse(x + size / 2, y + size * 0.25, size * 0.2, size * 0.2); 
+  arc(x + size / 2, y + size * 0.8, size, size, PI, TWO_PI); 
+}
 
-  arc(x + size / 2, y + size * 0.8, size, size, PI, TWO_PI);  // Dome of the bell
-
-  ellipse(x + size / 2, y + size * 0.25, size * 0.2, size * 0.2);  // Button on top
+// Bottle drawing functions
+function drawBottle1(x, y, w, h, color) {
+  fill(color);
+  noStroke();
+  rect(x, y, w, h); 
+  ellipse(x + w / 2, y, w, h / 4); 
+}
+function drawBottle2(x, y, w, h, color) {
+  fill(color);
+  noStroke();
+  ellipse(x + w / 2, y + h / 2, w, h); 
+}
+function drawBottle3(x, y, w, h, color) {
+  fill(color);
+  noStroke();
+  beginShape(); 
+  vertex(x, y + h);
+  vertex(x + w / 3, y);
+  vertex(x + 2 * w / 3, y);
+  vertex(x + w, y + h);
+  endShape(CLOSE);
 }
 
 class Bottle {
-  constructor(x, y, w, h, hexColor, increment) {
+  constructor(x, y, w, h, hexColor, increment, drawFunc) {
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
     this.color = color(hexColor);
     this.increment = increment;
+    this.drawFunc = drawFunc;  
     this.amount = 0;
   }
 
   display() {
     // Check if the mouse is hovering over the bottle
-    let isHovering = mouseX > this.x && mouseX < this.x + this.w && mouseY > this.y && mouseY < this.y + this.h;
-
-    push();  // Save the current transformation matrix
+    let isHovering = this.isMouseOver();
+    push(); 
 
     // Apply scaling and bobbing effect if hovering
     if (isHovering) {
-      translate(this.x + this.w / 2, this.y + this.h / 2); // Move to the center of the bottle
-      scale(1.1); // Scale up slightly
-      translate(-this.w / 2, -this.h / 2); // Move back to original position
-      translate(0, sin(frameCount * 0.1) * 5); // Bobbing effect
+      translate(this.x + this.w / 2, this.y + this.h / 2); 
+      scale(1.05);
+      translate(-this.w / 2, -this.h / 2); 
+      translate(0, sin(frameCount * 0.1) * 5); 
     } else {
       translate(this.x, this.y);
     }
-
-    // Draw the bottle
-    stroke(0);
-    strokeWeight(2);
-    fill(this.color);
-    rect(0, 0, this.w, this.h);  // Bottle body
-    ellipse(this.w / 2, 0, this.w, 30);  // Bottle top
-
-    pop();  // Restore the transformation matrix
+    this.drawFunc(0, 0, this.w, this.h, this.color);
+    pop(); 
   }
 
   checkClick() {
-    if (mouseX > this.x && mouseX < this.x + this.w && mouseY > this.y && mouseY < this.y + this.h) {
+    if (this.isMouseOver()) {
       targetFill += this.increment;
       this.amount += this.increment;
 
@@ -213,4 +225,86 @@ class Bottle {
       }
     }
   }
+
+  isMouseOver() {
+    if (this.drawFunc === drawBottle1) {
+      return mouseX > this.x && mouseX < this.x + this.w && mouseY > this.y && mouseY < this.y + this.h;
+    } else if (this.drawFunc === drawBottle2) {
+      let centerX = this.x + this.w / 2;
+      let centerY = this.y + this.h / 2;
+      return dist(mouseX, mouseY, centerX, centerY) < this.w / 2; 
+    } else if (this.drawFunc === drawBottle3) {
+      return mouseX > this.x && mouseX < this.x + this.w && mouseY > this.y && mouseY < this.y + this.h;
+    }
+
+    return false;  
+  }
 }
+
+
+function artworkBackground() {
+  noStroke();
+  
+  // Background Wall
+  fill(colors.darkBrown1);
+  rect(0, 0, 1280, 800);
+  
+  // Forward Wall
+  fill(colors.darkBrown2);
+  rect(815, 0, 1280, 800);
+  fill(colors.darkBrown3);
+  rect(825, 0, 1280, 800);
+  
+  // Bar Table
+  fill(colors.lightBrown);
+  rect(0, 625, 925, 250);
+  fill(colors.mediumBrown1);
+  rect(0, 650, 900, 250);
+  fill(colors.mediumBrown2);
+  quad(900, 650, 900, 800, 925, 800, 925, 625);
+  
+  // Table Trim
+  fill(colors.lightCream);
+  quad(0, 650, 0, 655, 900, 655, 900, 650);
+  quad(897, 650, 897, 800, 902, 800, 902, 650);
+  quad(900, 650, 900, 657, 925, 631, 925, 625);
+  
+  // Stools
+  for (let i = 0; i < 5; i++) {
+    let xOffset = 173 * i; 
+    drawStool(95 + xOffset, 750, 100 + xOffset, 750);
+  }
+  
+  // Shelves
+  fill(colors.shelfBrown);
+  rect(0, 150, 750, 50);
+  fill(colors.mediumBrown1);
+  quad(0, 200, 0, 215, 730, 215, 750, 200);
+  fill(colors.lightCream);
+  rect(0, 210, 730, 5);
+  
+  fill(colors.shelfBrown);
+  rect(0, 375, 750, 50);
+  fill(colors.mediumBrown1);
+  quad(0, 425, 0, 445, 730, 445, 750, 425);
+  fill(colors.lightCream);
+  rect(0, 440, 730, 5);
+}
+
+function drawStool(baseX, baseY, seatX, seatY) {
+  fill(colors.darkGray);
+  rect(baseX, baseY, 10, 100); 
+  fill(colors.darkRed1);
+  rect(seatX - 75, seatY - 50, 150, 50);
+  fill(colors.darkRed2);
+  ellipse(seatX, seatY - 50, 150, 25);
+  fill(colors.darkRed1);
+  ellipse(seatX, baseY, 150, 25); 
+}
+
+function keyTyped() {
+  if (key === " ") {
+    saveCanvas("thumbnail.png");
+  }
+}
+
