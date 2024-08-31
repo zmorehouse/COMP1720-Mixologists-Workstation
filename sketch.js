@@ -1,3 +1,4 @@
+// Initialise colours dictionary to store reusable colours
 let colors = {
   darkBrown1: '#40292C',
   darkBrown2: '#4C342E',
@@ -33,21 +34,20 @@ let glassHeight = 110;
 let dragging = false;       
 let offsetX = 0;            
 
-
-
 function setup() {
   createCanvas(1280, 800);
   artworkBackground();
   
   // Add new bottles to array
-  bottles.push(new Bottle(370, 100, 45, 100, '#C83232', increment, drawBottle1)); 
+  bottles.push(new Bottle(35, 35, 45, 100, '#C83232', increment)); 
+  bottles.push(new Bottle(100, 35, 45, 100, '#0082FF', increment)); 
 
 }
 function draw() {
   artworkBackground();
   drawBell(800, 600, 45); 
 
-  let isHoveringOverInteractable = false; // Track whether the cursor is over an interactive element
+  let isHoveringOverInteractable = false; 
 
   // Colour and glass mixing
   let totalAmount = liquidColors.reduce((acc, val) => acc + val.amount, 0);
@@ -69,13 +69,13 @@ function draw() {
 
   // Check if hovering over the glass
   if (mouseX > glassX && mouseX < glassX + glassWidth && mouseY > glassY && mouseY < glassY + glassHeight) {
-    cursor('pointer');  // Change cursor to pointer
+    cursor('pointer'); 
     isHoveringOverInteractable = true;
   }
 
   // Check if hovering over the bell
   if (dist(mouseX, mouseY, 800 + 45 / 2, 600 + 45 / 2) < 45 / 2) {  // Hover detection for the bell
-    cursor('pointer');  // Change cursor to pointer
+    cursor('pointer');  
     isHoveringOverInteractable = true;
   }
 
@@ -83,7 +83,7 @@ function draw() {
   for (let bottle of bottles) {
     bottle.display();
     if (bottle.isMouseOver()) {
-      cursor('pointer');  // Change cursor to pointer
+      cursor('pointer');  
       isHoveringOverInteractable = true;
     }
   }
@@ -108,7 +108,6 @@ function draw() {
     text("Enjoy your drink!", glassX + glassWidth / 2, glassY - 10);
   }
 }
-
 
 function mousePressed() {
   
@@ -149,7 +148,6 @@ function resetDrink() {
   glassFilled = false;
 }
 
-
 // Draw the glass and liquid in it
 function drawGlass(x, y, w, h, liquidColor) {
   // Draw the liquid in the glass
@@ -157,41 +155,28 @@ function drawGlass(x, y, w, h, liquidColor) {
   fill(liquidColor); 
   rect(x, y + h + 5 - fillLevel, w, fillLevel, 7, 7, 10, 10);  
 
-  // Draw the glass body with a 3D effect
+  // Draw the glass body
   stroke(colors.glassOutline);
   strokeWeight(1);
   fill(colors.glassFill);
 
-  // Draw the sidewalls of the glass
-  line(x, y + 10, x, y + h);         // Left side line
-  line(x + w, y + 10, x + w, y + h); // Right side line
-
-  // Draw the front half of the bottom ellipse for a 3D effect
+  line(x, y + 10, x, y + h);         
+  line(x + w, y + 10, x + w, y + h); 
   fill(colors.glassFill);
   if (fillLevel === 0) {
-    // If not filled, draw the full bottom ellipse
-    ellipse(x + w / 2, y + h, w, 10); // Full ellipse at the bottom
+    ellipse(x + w / 2, y + h, w, 10); 
   } else {
-    // If filled, draw only the front half without the line cutting across
-    arc(x + w / 2, y + h, w, 10, 0, PI, OPEN); // Front half of the bottom ellipse without the line
+    arc(x + w / 2, y + h, w, 10, 0, PI, OPEN); 
   }
-
-  // Draw the handle with a 3D effect
   noFill();
   stroke(colors.glassOutline);
   strokeWeight(3);
-  arc(x - 2, y + h / 2, 30, 40, PI / 2, 3 * PI / 2);  // Handle on the side
-
-  // Draw the top ellipse for the open look
+  arc(x - 2, y + h / 2, 30, 40, PI / 2, 3 * PI / 2);  
   strokeWeight(1);
   fill(colors.glassFill);
-  ellipse(x + w / 2, y + 10, w, 10);  // Top ellipse
-
-  noStroke(); // Ensure no stroke for the rest of the drawing
+  ellipse(x + w / 2, y + 10, w, 10);  
+  noStroke(); 
 }
-
-
-
 
 // Draw the bell
 function drawBell(x, y, size) {
@@ -202,39 +187,21 @@ function drawBell(x, y, size) {
   arc(x + size / 2, y + size * 0.8, size, size, PI, TWO_PI); 
 }
 
-function drawBottle1(x, y, w, h, color) {
-  noStroke();
-  fill(color);
-
-  // Draw the bottle body
-  rect(x, y + h * 0.25, w, h * 0.75, 5); // Main bottle body
-  rect(x, y + h * 0.05, w, h * 0.75, 200); // Bottle base curve
-  rect(x + w * 0.35, y, w * 0.3, h * 0.5, 2); // Neck
-
-  // Draw the bottle label
-  fill('rgb(210,210,210)');
-  rect(x, y + h * 0.35, w, h * 0.2); // Label
-  
-  // Draw the bottle cap
-  fill(color);
-  rect(x + w * 0.35, y, w * 0.3, h * 0.05, 2); // Cap
-}
 class Bottle {
-  constructor(x, y, w, h, hexColor, increment, drawFunc) {
+  constructor(x, y, w, h, hexColor, increment) {
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
     this.color = color(hexColor);
     this.increment = increment;
-    this.drawFunc = drawFunc;  
     this.amount = 0;
   }
 
   display() {
     // Check if the mouse is hovering over the bottle
     let isHovering = this.isMouseOver();
-    push(); 
+    push();
 
     // Apply scaling and bobbing effect if hovering
     if (isHovering) {
@@ -245,8 +212,23 @@ class Bottle {
     } else {
       translate(this.x, this.y);
     }
-    this.drawFunc(0, 0, this.w, this.h, this.color);
-    pop(); 
+
+    // Draw the bottle body
+    fill(this.color);
+    noStroke();
+    rect(0, 55, this.w, this.h, 5); 
+    rect(0, 35, this.w, this.h, 200);
+    rect(this.w * 0.35, 0, this.w * 0.3, 50, 2);
+
+    // Draw the bottle label
+    fill('rgb(210,210,210)');
+    rect(0, 65, this.w, 25); // Label
+
+    // Draw the bottle cap
+    fill(this.color);
+    rect(this.w * 0.35, 0, this.w * 0.3, 5, 2); // Cap
+    
+    pop();
   }
 
   checkClick() {
@@ -271,10 +253,9 @@ class Bottle {
   }
 
   isMouseOver() {
-    return mouseX > this.x && mouseX < this.x + this.w && mouseY > this.y && mouseY < this.y + this.h;
+    return mouseX > this.x && mouseX < this.x + this.w && mouseY > this.y && mouseY < this.y + this.h + 50;  // Extended height for the neck
   }
 }
-
 
 function artworkBackground() {
   noStroke();
@@ -341,4 +322,3 @@ function keyTyped() {
     saveCanvas("thumbnail.png");
   }
 }
-
