@@ -33,14 +33,15 @@ let glassHeight = 110;
 let dragging = false;       
 let offsetX = 0;            
 
+
+
 function setup() {
   createCanvas(1280, 800);
   artworkBackground();
   
   // Add new bottles to array
-  bottles.push(new Bottle(40, 100, 60, 180, '#C83232', increment, drawBottle1)); 
-  bottles.push(new Bottle(150, 100, 80, 150, '#32C832', increment, drawBottle2));  
-  bottles.push(new Bottle(260, 100, 50, 200, '#3232C8', increment, drawBottle3));  
+  bottles.push(new Bottle(370, 100, 45, 100, '#C83232', increment, drawBottle1)); 
+
 }
 function draw() {
   artworkBackground();
@@ -201,29 +202,23 @@ function drawBell(x, y, size) {
   arc(x + size / 2, y + size * 0.8, size, size, PI, TWO_PI); 
 }
 
-// Bottle drawing functions
 function drawBottle1(x, y, w, h, color) {
-  fill(color);
   noStroke();
-  rect(x, y, w, h); 
-  ellipse(x + w / 2, y, w, h / 4); 
-}
-function drawBottle2(x, y, w, h, color) {
   fill(color);
-  noStroke();
-  ellipse(x + w / 2, y + h / 2, w, h); 
-}
-function drawBottle3(x, y, w, h, color) {
-  fill(color);
-  noStroke();
-  beginShape(); 
-  vertex(x, y + h);
-  vertex(x + w / 3, y);
-  vertex(x + 2 * w / 3, y);
-  vertex(x + w, y + h);
-  endShape(CLOSE);
-}
 
+  // Draw the bottle body
+  rect(x, y + h * 0.25, w, h * 0.75, 5); // Main bottle body
+  rect(x, y + h * 0.05, w, h * 0.75, 200); // Bottle base curve
+  rect(x + w * 0.35, y, w * 0.3, h * 0.5, 2); // Neck
+
+  // Draw the bottle label
+  fill('rgb(210,210,210)');
+  rect(x, y + h * 0.35, w, h * 0.2); // Label
+  
+  // Draw the bottle cap
+  fill(color);
+  rect(x + w * 0.35, y, w * 0.3, h * 0.05, 2); // Cap
+}
 class Bottle {
   constructor(x, y, w, h, hexColor, increment, drawFunc) {
     this.x = x;
@@ -276,17 +271,7 @@ class Bottle {
   }
 
   isMouseOver() {
-    if (this.drawFunc === drawBottle1) {
-      return mouseX > this.x && mouseX < this.x + this.w && mouseY > this.y && mouseY < this.y + this.h;
-    } else if (this.drawFunc === drawBottle2) {
-      let centerX = this.x + this.w / 2;
-      let centerY = this.y + this.h / 2;
-      return dist(mouseX, mouseY, centerX, centerY) < this.w / 2; 
-    } else if (this.drawFunc === drawBottle3) {
-      return mouseX > this.x && mouseX < this.x + this.w && mouseY > this.y && mouseY < this.y + this.h;
-    }
-
-    return false;  
+    return mouseX > this.x && mouseX < this.x + this.w && mouseY > this.y && mouseY < this.y + this.h;
   }
 }
 
