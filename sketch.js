@@ -10,7 +10,7 @@ let colors = {
   darkRed1: '#6E0F0B',
   darkRed2: '#8C1D1C',
   shelfBrown: '#624A45',
-  glassOutline: 'rgba(255, 255, 255, 0.8)', 
+  glassOutline: 'rgba(255, 255, 255, 0.9)', 
   glassFill: 'rgba(255, 255, 255, 0.2)' 
 };
 
@@ -27,7 +27,7 @@ let bottles = [];
 
 // Glass Vars
 let glassX = 50;           
-let glassY = 520;           
+let glassY = 525;           
 let glassWidth = 65;       
 let glassHeight = 110;      
 let dragging = false;       
@@ -128,20 +128,40 @@ function resetDrink() {
 
 // Draw the glass and liquid in it
 function drawGlass(x, y, w, h, liquidColor) {
+  // Draw the liquid in the glass
   noStroke();
   fill(liquidColor); 
-  rect(x, y + h - fillLevel, w, fillLevel, 3);  
+  rect(x, y + h + 5 - fillLevel, w, fillLevel, 7, 7, 10, 10);  
+  
+  // Draw the glass body with a 3D effect
   stroke(colors.glassOutline);
-  strokeWeight(1)
+  strokeWeight(1);
   fill(colors.glassFill);
-  rect(x, y, w, h, 3); 
+  
+  // Draw the sidewalls of the glass
+  beginShape();
+  line(x, y + 10, x, y + h);         // Left side line
+  line(x + w, y + 10, x + w, y + h); // Right side line
+  endShape(CLOSE);
+
+  // Draw the bottom ellipse to give a 3D effect
+  fill(colors.glassFill);
+  ellipse(x + w / 2, y + h, w, 10); // Small ellipse at the bottom
+
+  // Draw the handle with a 3D effect
   noFill();
   stroke(colors.glassOutline);
   strokeWeight(3);
-  arc(x -2, y + h / 2, 30, 40, PI / 2, 3 * PI / 2);  // Handle on the side
-  noStroke();
+  arc(x - 2, y + h / 2, 30, 40, PI / 2, 3 * PI / 2);  // Handle on the side
 
+  // Add a top ellipse to create an open look
+  strokeWeight(1);
+  fill(colors.glassFill);
+  ellipse(x + w / 2, y + 10, w, 10);  // Top ellipse for the open top of the glass
+
+  noStroke(); // Ensure no stroke for the rest of the drawing
 }
+
 
 // Draw the bell
 function drawBell(x, y, size) {
@@ -307,4 +327,3 @@ function keyTyped() {
     saveCanvas("thumbnail.png");
   }
 }
-
