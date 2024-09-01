@@ -51,8 +51,8 @@ function setup() {
     for (let i = 0; i < numSnowflakes; i++) {
     let snowX = random(1050, 1050 + 200);
     let snowY = random(252, 252 + 297);
-    let speed = random(0.25, 1);
-    snowflakes.push({x: snowX, y: snowY, speed: speed});
+    let flakespeed = random(0.25, 1);
+    snowflakes.push({x: snowX, y: snowY, flakespeed: flakespeed});
   }
 
 }
@@ -343,9 +343,9 @@ function artworkBackground() {
 
   // Window
   noFill();
-      stroke('#5F3300')
+      stroke('#4B2301')
 
-  strokeWeight(9);
+  strokeWeight(7);
   rect(1050, 252, 200, 297)
   stroke('#3C2A26')
 
@@ -384,7 +384,7 @@ endShape(CLOSE);
 fill('#FFFFFF'); 
 for (let i = 0; i < snowflakes.length; i++) {
     let flake = snowflakes[i];
-    flake.y += flake.speed;
+    flake.y += flake.flakespeed;
     if (flake.y <= 550) {
       ellipse(flake.x, flake.y, 5, 5);
     }
@@ -400,7 +400,7 @@ for (let i = 0; i < snowflakes.length; i++) {
         
   strokeWeight(8)
   
-  stroke('#5F3300')
+  stroke('#4B2301')
   line(1150, 252, 1150, 548)
   line(1050, 400, 1250, 400)
     
