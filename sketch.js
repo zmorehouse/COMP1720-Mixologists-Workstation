@@ -38,7 +38,16 @@ let offsetX = 0;
 let snowflakes = [];
 let numSnowflakes = 35;
 
+// Light Vars
+let lightFlickering = true; 
+let lightOn = true;         
+let overlayAlpha = 0;   
 
+// Bell Vars
+let bellClicked = false;
+let bellVibrationAmplitude = 2;
+let bellVibrationFrequency = 0.5;
+let bellVibrationDecay = 0.95;
 function setup() {
   createCanvas(1280, 800);
   artworkBackground();
@@ -87,7 +96,7 @@ function draw() {
   }
 
   // Check if hovering over the bell
-  if (dist(mouseX, mouseY, 800 + 45 / 2, 600 + 45 / 2) < 45 / 2) {  // Hover detection for the bell
+ if (dist(mouseX, mouseY, 800 + 45 / 2, 600 + 45 / 2) < 45 / 2) {  
     cursor('pointer');  
     isHoveringOverInteractable = true;
   }
@@ -99,6 +108,18 @@ function draw() {
       cursor('pointer');  
       isHoveringOverInteractable = true;
     }
+  }
+  
+    // Check if hovering over the light
+  if (dist(mouseX, mouseY, 1050, 150) < 25) {  // Light bulb hover detection
+    cursor('pointer');  
+    isHoveringOverInteractable = true;
+  }
+  
+  // Check if hovering over window
+    if (mouseX > 1050 && mouseX < 1250 && mouseY > 252 && mouseY < 549) {  
+    cursor('pointer');  
+    isHoveringOverInteractable = true;
   }
 
   // Reset cursor if not hovering over any interactive elements
@@ -118,12 +139,23 @@ function draw() {
     fill(0);
     textSize(24);
     textAlign(CENTER);
+    fill('white')
     text("Enjoy your drink!", glassX + glassWidth / 2, glassY - 10);
   }
+  
+    // Add dark overlay if the light is off
+  if (!lightOn) {
+    overlayAlpha = min(overlayAlpha + 10, 150);
+  } else {
+    overlayAlpha = max(overlayAlpha - 10, 0);
+  }
+
+  fill(0, 0, 0, overlayAlpha);
+  rect(0, 0, width, height);
+
 }
 
 function mousePressed() {
-  
   // Check if the glass is clicked
   if (mouseX > glassX && mouseX < glassX + glassWidth && mouseY > glassY && mouseY < glassY + glassHeight) {
     dragging = true;
@@ -131,14 +163,37 @@ function mousePressed() {
   }
 
   // Check if the bell is clicked
-  if (dist(mouseX, mouseY, 800 + 45 / 2, 600 + 45 / 2) < 45 / 2) {  // Static values used here
+
+ if (dist(mouseX, mouseY, 800 + 45 / 2, 600 + 45 / 2) < 45 / 2) { 
     resetDrink();
+    bellClicked = true;
   }
   
   // Check if bottle is clicked
   if (!glassFilled) {  
     for (let bottle of bottles) {
       bottle.checkClick();
+    }
+  }
+
+  // Check if the light is clicked
+  if (dist(mouseX, mouseY, 1050, 150) < 25) {  // Light bulb click detection
+    lightOn = !lightOn;
+  }
+  
+  // Check if the window is clicked to increase snowflakes or speed
+  if (mouseX > 1050 && mouseX < 1250 && mouseY > 252 && mouseY < 549) {  // Window area
+    for (let i = 0; i < snowflakes.length; i++) {
+      snowflakes[i].flakespeed += 0.2;  // Increase the speed of each snowflake
+    }
+    
+    // Add more snowflakes with each click
+    let additionalFlakes = 5;
+    for (let i = 0; i < additionalFlakes; i++) {
+      let snowX = random(1050, 1050 + 200);
+      let snowY = 252;
+      let flakespeed = random(0.5, 1); 
+      snowflakes.push({x: snowX, y: snowY, flakespeed: flakespeed});
     }
   }
 }
@@ -193,11 +248,22 @@ function drawGlass(x, y, w, h, liquidColor) {
 
 // Draw the bell
 function drawBell(x, y, size) {
+  if (bellClicked) {
+    bellVibrationAmplitude *= bellVibrationDecay; 
+    if (abs(bellVibrationAmplitude) < 0.1) {
+      bellClicked = false; 
+      bellVibrationAmplitude = 2;
+    }
+  }
+
+  let bellXOffset = bellClicked ? sin(frameCount * bellVibrationFrequency) * bellVibrationAmplitude : 0;
+
+  // Draw bell with vibration effect
   fill(150);
   stroke(100);
-  ellipse(x + size / 2, y + size * 0.32, size * 0.2, size * 0.2); 
-  arc(x + size / 2, y + size * 0.8, size, size, PI, TWO_PI); 
-  rect(x, y + 38, size , 3, 5)
+  ellipse(x + size / 2 + bellXOffset, y + size * 0.32, size * 0.2, size * 0.2); 
+  arc(x + size / 2 + bellXOffset, y + size * 0.8, size, size, PI, TWO_PI); 
+  rect(x + bellXOffset, y + 38, size, 3, 5);
 }
 
 class Bottle {
@@ -319,17 +385,26 @@ function artworkBackground() {
   fill(colors.lightCream);
   rect(0, 440, 730, 5);
   
+   let lightBrightness = 255;
+  if (lightFlickering && lightOn) {
+    lightBrightness = 200 + sin(frameCount * 0.1) * 55;
+  } else if (!lightOn) {
+    lightBrightness = 0;
+  }
+
+  
   // Light
-  fill('#390000');
-  rect(1048, 0, 5, 125) 
-  arc(1050, 148, 80, 15, 0 , PI);
+fill('#390000');
+  rect(1048, 0, 5, 125); 
+  arc(1050, 148, 80, 15, 0, PI);
   for (let r = 25; r > 0; r -= 4) {
-  let alpha = map(r, 60, 0, 0, 255);
-  fill(255, 242, 212, alpha);
-  circle(1050, 150, r);
+    let alpha = map(r, 60, 0, 0, lightBrightness);
+    fill(255, 242, 212, alpha);
+    circle(1050, 150, r);
+  }
   fill('#5C0000');
-  arc(1050, 148, 80, 60, PI , TWO_PI);
-  arc(1050, 125, 25, 25, PI , TWO_PI);
+  arc(1050, 148, 80, 60, PI, TWO_PI);
+  arc(1050, 125, 25, 25, PI, TWO_PI);
     
   // Menu
   fill('#390000');
@@ -413,7 +488,7 @@ for (let i = 0; i < snowflakes.length; i++) {
   strokeWeight(1)
   noStroke()
 
-  }
+  
 
 }
 
