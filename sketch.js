@@ -1,4 +1,4 @@
-// Initialise colours dictionary to store reusable colours
+// Colours list
 let colors = {
   darkBrown1: '#40292C',
   darkBrown2: '#4C342E',
@@ -15,7 +15,7 @@ let colors = {
   glassFill: 'rgba(255, 255, 255, 0.2)' 
 };
 
-// Initialise a list of cockatails to display on the board
+// Cocktails List
 let cocktails = {
   1: "Margarita",
   2: "Mojito",
@@ -69,17 +69,14 @@ let bellVibrationAmplitude = 2;
 let bellVibrationFrequency = 0.5;
 let bellVibrationDecay = 0.95;
 
-// Ice vars
+// Ice Vars
 let iceCubes = []; 
 let prevGlassX;
 
-// Lemon vars
-
-
-// Load fonts
-function preload() {
-
-}
+// Lemon Vars
+let lemonSliceAdded = false; 
+let lemonSliceOffsetX = 25;
+let lemonSliceOffsetY =25; 
 
 
 function setup() {
@@ -146,6 +143,19 @@ function draw() {
   // Constrain and draw glass
   glassX = constrain(glassX, 0, 800 - glassWidth - 10);
   drawGlass(glassX, glassY, glassWidth, glassHeight, liquidColor);
+  
+  // Lemon Logic
+ if (lemonSliceAdded) {
+  push();
+  translate(glassX + 65, glassY + 10 ); 
+  scale(-1, 1); 
+  stroke('#A99800')
+strokeWeight(2)
+   fill('#FBEC66');
+  arc(0, 0, 25, 25, HALF_PI, TWO_PI);
+   
+  pop();
+}
 
   // Check if hovering over the glass
   if (mouseX > glassX && mouseX < glassX + glassWidth && mouseY > glassY && mouseY < glassY + glassHeight) {
@@ -210,7 +220,7 @@ function draw() {
     // Ice logic
  for (let i = 0; i < iceCubes.length; i++) {
     let ice = iceCubes[i];
-    let bobbingY = sin(frameCount * 0.1 + ice.bobOffset) * 2; // Bobbing effect
+    let bobbingY = sin(frameCount * 0.1 + ice.bobOffset) * 2;
     
     // Adjust ice position to sit on the fill level, or at 635px if fill level is 0
     if (fillLevel > 20) {
@@ -218,10 +228,9 @@ function draw() {
     } else {
       ice.y = 615;
     }
-
-    fill('#D3E4E91E'); // Ice color
+    fill('#D3E4E91E'); 
    stroke('white')
-    rect(ice.x, ice.y + bobbingY, 15, 15, 3); // Draw ice cube
+    rect(ice.x, ice.y + bobbingY, 15, 15, 3);
   }
   
   // Add dark overlay if the light is off
@@ -276,14 +285,22 @@ function draw() {
   fill(0, 0, 0, overlayAlpha);
   rect(0, 0, width, height);
 
-
 }
 
 function mousePressed() {
+  
   // Check if the glass is clicked
   if (mouseX > glassX && mouseX < glassX + glassWidth && mouseY > glassY && mouseY < glassY + glassHeight) {
     dragging = true;
     offsetX = mouseX - glassX; 
+  }
+  
+  // Check if lemon bowl is clicked
+    let lemonBowlHover = mouseX > 590 && mouseX < 660 && mouseY > 380 && mouseY < 440;
+  if (lemonBowlHover && !lemonSliceAdded) {
+    lemonSliceAdded = true;
+    lemonSliceOffsetX = glassWidth - 20;
+    lemonSliceOffsetY = -10;
   }
 
   // Check if the bell is clicked
@@ -300,7 +317,7 @@ function mousePressed() {
   }
 
   // Check if the light is clicked
-  if (dist(mouseX, mouseY, 1050, 150) < 25) {  // Light bulb click detection
+  if (dist(mouseX, mouseY, 1050, 150) < 25) {  
     lightOn = !lightOn;
   }
   
@@ -367,8 +384,8 @@ function mouseDragged() {
     let dx = mouseX - offsetX - glassX;
     glassX = mouseX - offsetX;
     glassX = constrain(glassX, 20, 800 - glassWidth - 10);
-
-    // Move ice cubes along with the glass
+  
+    // Ice cube logic
     for (let i = 0; i < iceCubes.length; i++) {
       iceCubes[i].x += dx; 
     }
@@ -385,8 +402,8 @@ function resetDrink() {
   liquidColors = [];
   glassFilled = false;
   iceCubes = [];
+  lemonSliceAdded = false;
 }
-
 
 // Class for reusable bottle components on top shelf
 class Bottle {
@@ -428,7 +445,7 @@ class Bottle {
     rect(0, 90, this.w, 5)
     circle(23, 77, 15 )
     fill('rgb(128,96,77)');
-    rect(this.w * 0.35, 0, this.w * 0.3, 5, 2); // Cap
+    rect(this.w * 0.35, 0, this.w * 0.3, 5, 2); 
     pop();
   }
 
@@ -618,13 +635,12 @@ function artworkBackground() {
   if (iceBowlHover) {
     cursor('pointer');
     isHoveringOverInteractable = true;
-    translate(710, 415); // Move origin to the center of the ice bowl
-    scale(1.1); // Scale up by 10%
-    translate(-710, -415); // Translate back to original position
+    translate(710, 415); 
+    scale(1.1);
+    translate(-710, -415); 
   }
-  let iceBowlBob = iceBowlHover ? sin(frameCount * 0.1) * 5 : 0; // Bobbing effect
-  translate(0, iceBowlBob); // Apply bobbing
-  // Draw the ice
+  let iceBowlBob = iceBowlHover ? sin(frameCount * 0.1) * 5 : 0; 
+  translate(0, iceBowlBob); 
   noFill();
   strokeWeight(1);
   stroke('#FFFFFF');
@@ -632,11 +648,10 @@ function artworkBackground() {
   rect(695, 395, 10, 10);
   rect(682, 397, 10, 10);
   rect(723, 396, 10, 10);
-
   noStroke();
   fill('#899DA5'); 
   arc(710, 435, 45, 35, PI, TWO_PI);
-  fill('#AEC0C9'); // Bucket color
+  fill('#AEC0C9'); 
   arc(710, 400, 70, 55, 0, PI);
   pop();
 
@@ -646,26 +661,25 @@ function artworkBackground() {
   if (lemonBowlHover) {
     cursor('pointer');
     isHoveringOverInteractable = true;
-    translate(625, 415); // Move origin to the center of the lemon bowl
-    scale(1.1); // Scale up by 10%
-    translate(-625, -415); // Translate back to original position
+    translate(625, 415); 
+    scale(1.1); 
+    translate(-625, -415); 
   }
-  let lemonBowlBob = lemonBowlHover ? sin(frameCount * 0.1) * 5 : 0; // Bobbing effect
-  translate(0, lemonBowlBob); // Apply bobbing
-  // Draw the lemons
+  let lemonBowlBob = lemonBowlHover ? sin(frameCount * 0.1) * 5 : 0; 
+  translate(0, lemonBowlBob); 
   fill('#E6C54F');
-  ellipse(625, 399, 35, 25); // Lemon 1
-  ellipse(608, 399, 10, 5); // Lemon 2
-  ellipse(642, 399, 10, 5); // Lemon 3
-
-  // Draw the bowl
+  ellipse(625, 399, 35, 25); 
+  ellipse(608, 399, 10, 5); 
+  ellipse(642, 399, 10, 5); 
   noStroke();
   fill('#BBA58F');
-  arc(625, 435, 45, 35, PI, TWO_PI); // Bowl base
+  arc(625, 435, 45, 35, PI, TWO_PI); 
   fill('#D8C1A8');
-  arc(625, 400, 70, 55, 0, PI); // Bowl body
+  arc(625, 400, 70, 55, 0, PI); 
   pop();
 }
+
+// Draw the stools
 function drawStool(baseX, baseY, seatX, seatY) {
   fill(colors.darkGray);
   rect(baseX, baseY, 10, 100); 
@@ -732,11 +746,11 @@ function drawBottomShelfBottles() {
   let bottleOneHover = mouseX > 15 && mouseX < 90 && mouseY > 380 && mouseY < 435;
   if (bottleOneHover) {
     cursor('pointer');
-    scale(1.1); // Scale up by 10%
-    translate(-(15 * 0.1), -(380 * 0.1)); // Translate to adjust for scaling
+    scale(1.1);
+    translate(-(15 * 0.1), -(380 * 0.1)); 
   }
-  let bottleOneBob = bottleOneHover ? sin(frameCount * 0.1) * 5 : 0; // Bobbing effect
-  translate(0, bottleOneBob); // Apply bobbing
+  let bottleOneBob = bottleOneHover ? sin(frameCount * 0.1) * 5 : 0; 
+  translate(0, bottleOneBob); 
   noStroke();
   fill('#784C1C'); 
   rect(15, 380, 75, 55, 25); 
@@ -754,11 +768,11 @@ function drawBottomShelfBottles() {
   let bottleTwoHover = mouseX > 120 && mouseX < 160 && mouseY > 335 && mouseY < 430;
   if (bottleTwoHover) {
     cursor('pointer');
-    scale(1.1); // Scale up by 10%
-    translate(-(120 * 0.1), -(360 * 0.1)); // Translate to adjust for scaling
+    scale(1.1); 
+    translate(-(120 * 0.1), -(360 * 0.1)); 
   }
-  let bottleTwoBob = bottleTwoHover ? sin(frameCount * 0.1) * 5 : 0; // Bobbing effect
-  translate(0, bottleTwoBob); // Apply bobbing
+  let bottleTwoBob = bottleTwoHover ? sin(frameCount * 0.1) * 5 : 0; 
+  translate(0, bottleTwoBob);
   fill('#83613C'); 
   rect(120, 360, 40, 75); 
   fill('#664B2E'); 
@@ -781,11 +795,11 @@ function drawBottomShelfBottles() {
   let bottleThreeHover = mouseX > 190 && mouseX < 230 && mouseY > 310 && mouseY < 433;
   if (bottleThreeHover) {
     cursor('pointer');
-    scale(1.1); // Scale up by 10%
-    translate(-(190 * 0.1), -(310 * 0.1)); // Translate to adjust for scaling
+    scale(1.1); 
+    translate(-(190 * 0.1), -(310 * 0.1));
   }
-  let bottleThreeBob = bottleThreeHover ? sin(frameCount * 0.1) * 5 : 0; // Bobbing effect
-  translate(0, bottleThreeBob); // Apply bobbing
+  let bottleThreeBob = bottleThreeHover ? sin(frameCount * 0.1) * 5 : 0;
+  translate(0, bottleThreeBob);
   fill('#9D9D9D'); 
   rect(205, 310, 10, 45); 
   fill('#BFBDBD'); 
@@ -803,11 +817,11 @@ function drawBottomShelfBottles() {
   let bottleFourHover = mouseX > 260 && mouseX < 300 && mouseY > 311 && mouseY < 435;
   if (bottleFourHover) {
     cursor('pointer');
-    scale(1.1); // Scale up by 10%
-    translate(-(260 * 0.1), -(311 * 0.1)); // Translate to adjust for scaling
+    scale(1.1); 
+    translate(-(260 * 0.1), -(311 * 0.1));
   }
-  let bottleFourBob = bottleFourHover ? sin(frameCount * 0.1) * 5 : 0; // Bobbing effect
-  translate(0, bottleFourBob); // Apply bobbing
+  let bottleFourBob = bottleFourHover ? sin(frameCount * 0.1) * 5 : 0;
+  translate(0, bottleFourBob); 
   fill('#DEDCDC'); 
   rect(260, 360, 40, 75); 
   triangle(280, 335, 260, 360, 300, 360);   
@@ -826,11 +840,11 @@ function drawBottomShelfBottles() {
   let bottleFiveHover = mouseX > 330 && mouseX < 370 && mouseY > 360 && mouseY < 455;
   if (bottleFiveHover) {
     cursor('pointer');
-    scale(1.1); // Scale up by 10%
-    translate(-(330 * 0.1), -(360 * 0.1)); // Translate to adjust for scaling
+    scale(1.1);
+    translate(-(330 * 0.1), -(360 * 0.1)); 
   }
-  let bottleFiveBob = bottleFiveHover ? sin(frameCount * 0.1) * 5 : 0; // Bobbing effect
-  translate(0, bottleFiveBob); // Apply bobbing
+  let bottleFiveBob = bottleFiveHover ? sin(frameCount * 0.1) * 5 : 0; 
+  translate(0, bottleFiveBob);
   fill('#003108'); 
   rect(342, 360, 15, 45, 2);
   fill('#DEDCDC'); 
@@ -850,11 +864,11 @@ function drawBottomShelfBottles() {
   let bottleSixHover = mouseX > 400 && mouseX < 440 && mouseY > 340 && mouseY < 435;
   if (bottleSixHover) {
     cursor('pointer');
-    scale(1.1); // Scale up by 10%
-    translate(-(400 * 0.1), -(340 * 0.1)); // Translate to adjust for scaling
+    scale(1.1);
+    translate(-(400 * 0.1), -(340 * 0.1)); 
   }
-  let bottleSixBob = bottleSixHover ? sin(frameCount * 0.1) * 5 : 0; // Bobbing effect
-  translate(0, bottleSixBob); // Apply bobbing
+  let bottleSixBob = bottleSixHover ? sin(frameCount * 0.1) * 5 : 0;
+  translate(0, bottleSixBob);
   fill('#FFE9C2'); 
   rect(415, 340, 10, 25, 5); 
   fill('#34005A'); 
@@ -869,11 +883,11 @@ function drawBottomShelfBottles() {
   let bottleSevenHover = mouseX > 470 && mouseX < 510 && mouseY > 335 && mouseY < 435;
   if (bottleSevenHover) {
     cursor('pointer');
-    scale(1.1); // Scale up by 10%
-    translate(-(470 * 0.1), -(335 * 0.1)); // Translate to adjust for scaling
+    scale(1.1);
+    translate(-(470 * 0.1), -(335 * 0.1)); 
   }
-  let bottleSevenBob = bottleSevenHover ? sin(frameCount * 0.1) * 5 : 0; // Bobbing effect
-  translate(0, bottleSevenBob); // Apply bobbing
+  let bottleSevenBob = bottleSevenHover ? sin(frameCount * 0.1) * 5 : 0;
+  translate(0, bottleSevenBob);
   fill('#002C05'); 
   rect(470, 360, 40, 75, 5); 
   triangle(490, 335, 475, 360, 505, 360);   
@@ -887,6 +901,7 @@ function drawBottomShelfBottles() {
   pop();
 }
 
+// Liquid for bottom shelf bottles
 function addLiquidToGlass(newColor) {
   if (!glassFilled) {
     targetFill += increment;
@@ -896,7 +911,6 @@ function addLiquidToGlass(newColor) {
     } else {
       liquidColors.push({ color: newColor, amount: increment });
     }
-
     if (targetFill > maxFill) {
       targetFill = maxFill;
     }
