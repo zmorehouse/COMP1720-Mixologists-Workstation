@@ -79,8 +79,7 @@ let lemonSliceOffsetX = 25;
 let lemonSliceOffsetY =25; 
 
 function preload() {
-    Poppins = loadFont('/assets/Poppins-SemiBold.ttf');
-    textFont('Poppins')
+
 
 }
 
