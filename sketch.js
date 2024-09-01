@@ -34,6 +34,11 @@ let glassHeight = 110;
 let dragging = false;       
 let offsetX = 0;            
 
+// Snowflake Vars
+let snowflakes = [];
+let numSnowflakes = 35;
+
+
 function setup() {
   createCanvas(1280, 800);
   artworkBackground();
@@ -41,6 +46,14 @@ function setup() {
   // Add new bottles to array
   bottles.push(new Bottle(35, 35, 45, 100, '#C83232', increment)); 
   bottles.push(new Bottle(100, 35, 45, 100, '#0082FF', increment)); 
+  
+  // Snowflake logic
+    for (let i = 0; i < numSnowflakes; i++) {
+    let snowX = random(1050, 1050 + 200);
+    let snowY = random(252, 252 + 297);
+    let speed = random(0.25, 1);
+    snowflakes.push({x: snowX, y: snowY, speed: speed});
+  }
 
 }
 function draw() {
@@ -133,7 +146,7 @@ function mousePressed() {
 function mouseDragged() {
   if (dragging) {
     glassX = mouseX - offsetX;
-    glassX = constrain(glassX, 0, 800 - glassWidth - 10);  // Static value used here
+    glassX = constrain(glassX, 20, 800 - glassWidth - 10); 
   }
 }
 
@@ -181,10 +194,10 @@ function drawGlass(x, y, w, h, liquidColor) {
 // Draw the bell
 function drawBell(x, y, size) {
   fill(150);
-  stroke(0);
-  strokeWeight(1);
-  ellipse(x + size / 2, y + size * 0.25, size * 0.2, size * 0.2); 
+  stroke(100);
+  ellipse(x + size / 2, y + size * 0.32, size * 0.2, size * 0.2); 
   arc(x + size / 2, y + size * 0.8, size, size, PI, TWO_PI); 
+  rect(x, y + 38, size , 3, 5)
 }
 
 class Bottle {
@@ -263,6 +276,7 @@ function artworkBackground() {
   // Background Wall
   fill(colors.darkBrown1);
   rect(0, 0, 1280, 800);
+
   
   // Forward Wall
   fill(colors.darkBrown2);
@@ -304,7 +318,106 @@ function artworkBackground() {
   quad(0, 425, 0, 445, 730, 445, 750, 425);
   fill(colors.lightCream);
   rect(0, 440, 730, 5);
+  
+  // Light
+  fill('#390000');
+  rect(1048, 0, 5, 125) 
+  arc(1050, 148, 80, 15, 0 , PI);
+  for (let r = 25; r > 0; r -= 4) {
+  let alpha = map(r, 60, 0, 0, 255);
+  fill(255, 242, 212, alpha);
+  circle(1050, 150, r);
+  fill('#5C0000');
+  arc(1050, 148, 80, 60, PI , TWO_PI);
+  arc(1050, 125, 25, 25, PI , TWO_PI);
+    
+  // Menu
+  fill('#390000');
+    stroke('#52100B')
+    strokeWeight(1)
+  rect(875, 250, 150, 300, 3)
+      stroke(colors.lightCream);
+  fill('#5C0000');
+  rect(885, 260, 130, 280, 3)
+    noStroke()
+
+  // Window
+  noFill();
+      stroke('#5F3300')
+
+  strokeWeight(9);
+  rect(1050, 252, 200, 297)
+  stroke('#3C2A26')
+
+  strokeWeight(5);
+  rect(1050, 252, 200, 297)
+
+  // Draw window background
+  push();
+  fill('#04005F'); 
+  rect(1050, 252, 200, 297);
+
+  // Draw bg mountains
+noStroke();
+fill('#0A083A'); 
+beginShape();
+vertex(1050, 460);
+vertex(1080, 380); 
+vertex(1140, 300);
+vertex(1200, 360); 
+endShape(CLOSE);
+
+// Draw front mountains
+fill('#030039'); 
+beginShape();
+vertex(1050, 400);
+vertex(1100, 320); 
+vertex(1150, 400);
+vertex(1200, 300);
+vertex(1250, 400);
+vertex(1250, 549); 
+vertex(1050, 549); 
+endShape(CLOSE);
+
+  
+// Draw snowflakes
+fill('#FFFFFF'); 
+for (let i = 0; i < snowflakes.length; i++) {
+    let flake = snowflakes[i];
+    flake.y += flake.speed;
+    if (flake.y <= 550) {
+      ellipse(flake.x, flake.y, 5, 5);
+    }
+    if (flake.y > height) {
+      flake.y = 252; 
+    }
 }
+  pop();
+    
+  // Glass panes
+  fill('#C2AE966B');
+  rect(1050, 252, 200, 297)
+        
+  strokeWeight(8)
+  
+  stroke('#5F3300')
+  line(1150, 252, 1150, 548)
+  line(1050, 400, 1250, 400)
+    
+  strokeWeight(6)
+  stroke('#3C2A26')
+  // Window 
+  line(1150, 252, 1150, 548)
+  line(1050, 400, 1250, 400)
+
+  strokeWeight(1)
+  noStroke()
+
+  }
+
+}
+
+
 
 function drawStool(baseX, baseY, seatX, seatY) {
   fill(colors.darkGray);
@@ -322,3 +435,4 @@ function keyTyped() {
     saveCanvas("thumbnail.png");
   }
 }
+
