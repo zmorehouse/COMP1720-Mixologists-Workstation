@@ -122,6 +122,7 @@ function setup() {
 function draw() {
   artworkBackground();
   drawBell(800, 600, 45); 
+  drawBottomShelfBottles(); 
 
   let isHoveringOverInteractable = false; 
 
@@ -226,6 +227,18 @@ function draw() {
   } else {
     overlayAlpha = max(overlayAlpha - 10, 0);
   }
+  
+  // Bottom Shelf Custom Logic
+   if (mouseX > 15 && mouseX < 90 && mouseY > 380 && mouseY < 435) {
+    cursor('pointer');
+    isHoveringOverInteractable = true;
+  }
+
+  // Check if hovering over Bottle Two
+  if (mouseX > 120 && mouseX < 160 && mouseY > 335 && mouseY < 425) {
+    cursor('pointer');
+    isHoveringOverInteractable = true;
+  }
 
   fill(0, 0, 0, overlayAlpha);
   rect(0, 0, width, height);
@@ -285,6 +298,24 @@ if (mouseX > 680 && mouseX < 680 + 60 && mouseY > 380 && mouseY < 380 + 50) {
     iceCubes.push(ice);
   }
 }
+  // Check if bottles are clicked
+    if (mouseX > 15 && mouseX < 90 && mouseY > 380 && mouseY < 435) {
+    if (!glassFilled) {
+      targetFill += increment;
+      let colorToAdd = color('#8B3A3A'); // Color from Bottle One
+      addLiquidToGlass(colorToAdd);
+    }
+  }
+
+  // Check if Bottle Two is clicked
+  if (mouseX > 120 && mouseX < 160 && mouseY > 335 && mouseY < 425) {
+    if (!glassFilled) {
+      targetFill += increment;
+      let colorToAdd = color('#844500'); // Color from Bottle Two
+      addLiquidToGlass(colorToAdd);
+    }
+  }
+
 }
 function mouseDragged() {
   if (dragging) {
@@ -564,6 +595,7 @@ function artworkBackground() {
   arc(625, 435, 45, 35, PI, TWO_PI); // Bowl base
   fill('#D8C1A8');
   arc(625, 400, 70, 55, 0, PI); // Bowl body
+  
 
 }
 
@@ -623,6 +655,118 @@ function drawBell(x, y, size) {
   ellipse(x + size / 2 + bellXOffset, y + size * 0.32, size * 0.2, size * 0.2); 
   arc(x + size / 2 + bellXOffset, y + size * 0.8, size, size, PI, TWO_PI); 
   rect(x + bellXOffset, y + 38, size, 3, 5);
+}
+
+// Function for custom bottles
+function drawBottomShelfBottles() {
+  // Bottle One
+  noStroke();
+  fill('#784C1C'); 
+  rect(15, 380, 75, 55, 25); 
+  rect(45, 360, 15, 35, 5);
+  fill('#6B451A'); 
+  rect(40, 352, 25, 20, 5); 
+  fill('#F6EACE'); 
+  rect(15, 397, 75, 15, 3); 
+  fill('#950A01'); 
+  rect(15, 402, 75, 5, ); 
+
+  // Bottle Two
+  fill('#83613C'); 
+  rect(120, 360, 40, 75); 
+  fill('#664B2E'); 
+  rect(120, 355, 40, 5, 2); 
+  rect(120, 430, 40, 5, 2); 
+  fill('#83613C'); 
+  rect(133, 335, 15, 45, 2);
+  fill('#BFAB97'); 
+  rect(133, 335, 15, 5); 
+  fill('#C20000'); 
+  rect(120, 385, 40, 25); 
+  fill('#FFFFFF'); 
+  circle(140, 397, 15, 15)
+  fill('#FFA000'); 
+  rect(120, 410, 40, 5); 
+  
+  // Bottle Three
+  fill('#9D9D9D'); 
+  rect(205, 310, 10, 45); 
+  fill('#BFBDBD'); 
+  rect(205, 310, 10, 5); 
+  fill('#98DAF9'); 
+  rect(190, 335, 40, 98, 5); 
+  fill('#FFFFFF'); 
+  stroke(1)
+  rect(197, 365, 25, 60, 25); 
+  noStroke()
+  
+  // Bottle Four
+  fill('#DEDCDC'); 
+  rect(260, 360, 40, 75); 
+  triangle(280, 335, 260, 360, 300, 360);   
+  rect(275, 311, 10, 35, 2);
+  fill('#C20000'); 
+  rect(260, 365, 40, 45); 
+  rect(275, 326, 10, 5);
+  fill('#DEDCDC'); 
+  rect(270, 370, 20, 5, 5);
+  rect(265, 380, 30, 5, 5);
+  rect(265, 400, 30, 5, 5);
+
+  // Bottle Five
+  fill('#003108'); 
+  rect(342, 360, 15, 45, 2);
+  fill('#DEDCDC'); 
+  rect(342, 360, 15, 5);
+  fill('#003108'); 
+  rect(330, 380, 40, 55, 2); 
+  fill('#FFFFFF');
+  stroke('#008916')
+  rect(335, 390, 30, 37, 2); 
+  fill('#003108'); 
+  noStroke()
+  circle(350, 408, 15)
+
+  // Bottle Six
+  fill('#FFE9C2'); 
+  rect(415, 340, 10, 25, 5); 
+  fill('#34005A'); 
+  rect(415, 340, 10, 5); 
+  rect(400, 360, 40, 75, 5); 
+  fill('#FFE9C2'); 
+  rect(400, 405, 40, 25); 
+
+  // Bottle Four
+  fill('#002C05'); 
+  rect(470, 360, 40, 75, 5); 
+  triangle(490, 335, 475, 360, 505, 360);   
+  rect(485, 331, 10, 35, 2);
+  fill('#D0CFCE'); 
+  rect(475, 375, 30, 55, 5); 
+  fill('#004608'); 
+  rect(485, 331, 10, 5);
+  fill('white')
+  rect(482, 397, 15, 25, 55)
+
+
+  
+}
+
+function addLiquidToGlass(newColor) {
+  let existingColor = liquidColors.find(lc => lc.color.toString() === newColor.toString());
+  if (existingColor) {
+    existingColor.amount += increment;
+  } else {
+    liquidColors.push({ color: newColor, amount: increment });
+  }
+
+  if (targetFill > maxFill) {
+    targetFill = maxFill;
+  }
+  if (liquidColors.reduce((acc, val) => acc + val.amount, 0) > maxFill) {
+    let excess = liquidColors.reduce((acc, val) => acc + val.amount, 0) - maxFill;
+    liquidColors[liquidColors.length - 1].amount -= excess;
+  }
 }
 
 
