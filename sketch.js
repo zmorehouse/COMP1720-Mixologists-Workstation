@@ -15,12 +15,32 @@ let colors = {
   glassFill: 'rgba(255, 255, 255, 0.2)' 
 };
 
-// Glass Filling
+// Initialise a list of cockatails to display on the board
+let cocktails = {
+  1: "Margarita",
+  2: "Mojito",
+  3: "Old Fashioned",
+  4: "Cosmopolitan",
+  5: "Martini",
+  6: "Daiquiri",
+  7: "Pina Colada",
+  8: "Negroni",
+  9: "Whiskey Sour",
+  10: "Manhattan",
+  11: "Mai Tai",
+  12: "Gin and Tonic",
+  13: "Tequila Sunrise",
+  14: "Bloody Mary",
+};
+
+let specials = [];
+
+// Glass Filling Vars
 let fillLevel = 0;          
 let targetFill = 0;         
 let maxFill = 110;         
 let fillSpeed = 4;         
-let increment = 30;        
+let increment = 20;        
 let liquidColors = [];     
 let glassFilled = false;    
 
@@ -48,14 +68,35 @@ let bellClicked = false;
 let bellVibrationAmplitude = 2;
 let bellVibrationFrequency = 0.5;
 let bellVibrationDecay = 0.95;
+
+// Ice vars
+let iceCubes = []; 
+let prevGlassX;
+
+// Load fonts
+function preload() {
+
+}
+
+
 function setup() {
   createCanvas(1280, 800);
   artworkBackground();
   
   // Add new bottles to array
-  bottles.push(new Bottle(35, 35, 45, 100, '#C83232', increment)); 
-  bottles.push(new Bottle(100, 35, 45, 100, '#0082FF', increment)); 
-  
+  bottles.push(new Bottle(10, 35, 45, 100, '#D71818', increment)); 
+  bottles.push(new Bottle(70, 35, 45, 100, '#9A2424', increment)); 
+  bottles.push(new Bottle(130, 35, 45, 100, '#E3A556', increment)); 
+  bottles.push(new Bottle(190, 35, 45, 100, '#EEF039', increment)); 
+  bottles.push(new Bottle(250, 35, 45, 100, '#839A00', increment)); 
+  bottles.push(new Bottle(310, 35, 45, 100, '#6BB641', increment)); 
+  bottles.push(new Bottle(370, 35, 45, 100, '#76C7BB', increment)); 
+  bottles.push(new Bottle(430, 35, 45, 100, '#297FC6', increment)); 
+  bottles.push(new Bottle(490, 35, 45, 100, '#09318D', increment)); 
+  bottles.push(new Bottle(550, 35, 45, 100, '#7525C5', increment)); 
+  bottles.push(new Bottle(610, 35, 45, 100, '#B416B6', increment)); 
+  bottles.push(new Bottle(670, 35, 45, 100, '#C83290', increment)); 
+
   // Snowflake logic
     for (let i = 0; i < numSnowflakes; i++) {
     let snowX = random(1050, 1050 + 200);
@@ -63,6 +104,19 @@ function setup() {
     let flakespeed = random(0.25, 1);
     snowflakes.push({x: snowX, y: snowY, flakespeed: flakespeed});
   }
+  
+  // Specials board logic
+  let cocktailKeys = Object.keys(cocktails);
+  while (specials.length < 4) {
+    let randomIndex = int(random(cocktailKeys.length));
+    let selectedKey = cocktailKeys[randomIndex];
+    if (!specials.includes(cocktails[selectedKey])) {
+      specials.push(cocktails[selectedKey]);
+    }
+  }
+  
+  // Ice Logic
+  prevGlassX = glassX;
 
 }
 function draw() {
@@ -111,7 +165,7 @@ function draw() {
   }
   
     // Check if hovering over the light
-  if (dist(mouseX, mouseY, 1050, 150) < 25) {  // Light bulb hover detection
+  if (dist(mouseX, mouseY, 1050, 150) < 25) {  
     cursor('pointer');  
     isHoveringOverInteractable = true;
   }
@@ -119,6 +173,12 @@ function draw() {
   // Check if hovering over window
     if (mouseX > 1050 && mouseX < 1250 && mouseY > 252 && mouseY < 549) {  
     cursor('pointer');  
+    isHoveringOverInteractable = true;
+  }
+  
+  // Check if hovering over ice bucket
+    if (mouseX > 680  && mouseX < 740 && mouseY > 380  && mouseY < 430) {
+    cursor('pointer');
     isHoveringOverInteractable = true;
   }
 
@@ -143,7 +203,24 @@ function draw() {
     text("Enjoy your drink!", glassX + glassWidth / 2, glassY - 10);
   }
   
-    // Add dark overlay if the light is off
+    // Ice logic
+ for (let i = 0; i < iceCubes.length; i++) {
+    let ice = iceCubes[i];
+    let bobbingY = sin(frameCount * 0.1 + ice.bobOffset) * 2; // Bobbing effect
+    
+    // Adjust ice position to sit on the fill level, or at 635px if fill level is 0
+    if (fillLevel > 20) {
+      ice.y = glassY + glassHeight - fillLevel + 10;
+    } else {
+      ice.y = 615;
+    }
+
+    fill('#D3E4E91E'); // Ice color
+   stroke('white')
+    rect(ice.x, ice.y + bobbingY, 15, 15, 3); // Draw ice cube
+  }
+  
+  // Add dark overlay if the light is off
   if (!lightOn) {
     overlayAlpha = min(overlayAlpha + 10, 150);
   } else {
@@ -152,6 +229,7 @@ function draw() {
 
   fill(0, 0, 0, overlayAlpha);
   rect(0, 0, width, height);
+
 
 }
 
@@ -163,7 +241,6 @@ function mousePressed() {
   }
 
   // Check if the bell is clicked
-
  if (dist(mouseX, mouseY, 800 + 45 / 2, 600 + 45 / 2) < 45 / 2) { 
     resetDrink();
     bellClicked = true;
@@ -181,10 +258,10 @@ function mousePressed() {
     lightOn = !lightOn;
   }
   
-  // Check if the window is clicked to increase snowflakes or speed
-  if (mouseX > 1050 && mouseX < 1250 && mouseY > 252 && mouseY < 549) {  // Window area
+  // Check if the window is clicked
+  if (mouseX > 1050 && mouseX < 1250 && mouseY > 252 && mouseY < 549) {  
     for (let i = 0; i < snowflakes.length; i++) {
-      snowflakes[i].flakespeed += 0.2;  // Increase the speed of each snowflake
+      snowflakes[i].flakespeed += 0.2;  
     }
     
     // Add more snowflakes with each click
@@ -196,12 +273,30 @@ function mousePressed() {
       snowflakes.push({x: snowX, y: snowY, flakespeed: flakespeed});
     }
   }
+  
+  // Check if ice bucket is clicked
+if (mouseX > 680 && mouseX < 680 + 60 && mouseY > 380 && mouseY < 380 + 50) {
+  if (!glassFilled) {
+    let ice = {
+      x: glassX + random(0, glassWidth - 25),
+      y: fillLevel > 0 ? glassY + glassHeight - fillLevel : 615, 
+      bobOffset: random(0, TWO_PI) 
+    };
+    iceCubes.push(ice);
+  }
 }
-
+}
 function mouseDragged() {
   if (dragging) {
+    // Drag glass
+    let dx = mouseX - offsetX - glassX;
     glassX = mouseX - offsetX;
-    glassX = constrain(glassX, 20, 800 - glassWidth - 10); 
+    glassX = constrain(glassX, 20, 800 - glassWidth - 10);
+
+    // Move ice cubes along with the glass
+    for (let i = 0; i < iceCubes.length; i++) {
+      iceCubes[i].x += dx; 
+    }
   }
 }
 
@@ -214,58 +309,11 @@ function resetDrink() {
   targetFill = 0;
   liquidColors = [];
   glassFilled = false;
+  iceCubes = [];
 }
 
-// Draw the glass and liquid in it
-function drawGlass(x, y, w, h, liquidColor) {
-  // Draw the liquid in the glass
-  noStroke();
-  fill(liquidColor); 
-  rect(x, y + h + 5 - fillLevel, w, fillLevel, 7, 7, 10, 10);  
 
-  // Draw the glass body
-  stroke(colors.glassOutline);
-  strokeWeight(1);
-  fill(colors.glassFill);
-
-  line(x, y + 10, x, y + h);         
-  line(x + w, y + 10, x + w, y + h); 
-  fill(colors.glassFill);
-  if (fillLevel === 0) {
-    ellipse(x + w / 2, y + h, w, 10); 
-  } else {
-    arc(x + w / 2, y + h, w, 10, 0, PI, OPEN); 
-  }
-  noFill();
-  stroke(colors.glassOutline);
-  strokeWeight(3);
-  arc(x - 2, y + h / 2, 30, 40, PI / 2, 3 * PI / 2);  
-  strokeWeight(1);
-  fill(colors.glassFill);
-  ellipse(x + w / 2, y + 10, w, 10);  
-  noStroke(); 
-}
-
-// Draw the bell
-function drawBell(x, y, size) {
-  if (bellClicked) {
-    bellVibrationAmplitude *= bellVibrationDecay; 
-    if (abs(bellVibrationAmplitude) < 0.1) {
-      bellClicked = false; 
-      bellVibrationAmplitude = 2;
-    }
-  }
-
-  let bellXOffset = bellClicked ? sin(frameCount * bellVibrationFrequency) * bellVibrationAmplitude : 0;
-
-  // Draw bell with vibration effect
-  fill(150);
-  stroke(100);
-  ellipse(x + size / 2 + bellXOffset, y + size * 0.32, size * 0.2, size * 0.2); 
-  arc(x + size / 2 + bellXOffset, y + size * 0.8, size, size, PI, TWO_PI); 
-  rect(x + bellXOffset, y + 38, size, 3, 5);
-}
-
+// Class for reusable bottle components on top shelf
 class Bottle {
   constructor(x, y, w, h, hexColor, increment) {
     this.x = x;
@@ -293,35 +341,33 @@ class Bottle {
     }
 
     // Draw the bottle body
-    fill(this.color);
+    fill('rgb(4,32,18)');
     noStroke();
     rect(0, 55, this.w, this.h, 5); 
     rect(0, 35, this.w, this.h, 200);
     rect(this.w * 0.35, 0, this.w * 0.3, 50, 2);
-
     // Draw the bottle label
-    fill('rgb(210,210,210)');
-    rect(0, 65, this.w, 25); // Label
-
-    // Draw the bottle cap
-    fill(this.color);
+    fill('rgb(255,245,223)');    
+    rect(0, 65, this.w, 25);
+    fill(this.color); 
+    rect(0, 90, this.w, 5)
+    circle(23, 77, 15 )
+    fill('rgb(128,96,77)');
     rect(this.w * 0.35, 0, this.w * 0.3, 5, 2); // Cap
-    
     pop();
   }
 
   checkClick() {
+    // Filling logic
     if (this.isMouseOver()) {
       targetFill += this.increment;
       this.amount += this.increment;
-
       let existingColor = liquidColors.find(lc => lc.color.toString() === this.color.toString());
       if (existingColor) {
         existingColor.amount += this.increment;
       } else {
         liquidColors.push({ color: this.color, amount: this.increment });
       }
-
       if (targetFill > maxFill) {
         targetFill = maxFill;
       }
@@ -332,7 +378,7 @@ class Bottle {
   }
 
   isMouseOver() {
-    return mouseX > this.x && mouseX < this.x + this.w && mouseY > this.y && mouseY < this.y + this.h + 50;  // Extended height for the neck
+    return mouseX > this.x && mouseX < this.x + this.w && mouseY > this.y && mouseY < this.y + this.h + 50; 
   }
 }
 
@@ -342,7 +388,6 @@ function artworkBackground() {
   // Background Wall
   fill(colors.darkBrown1);
   rect(0, 0, 1280, 800);
-
   
   // Forward Wall
   fill(colors.darkBrown2);
@@ -377,7 +422,6 @@ function artworkBackground() {
   quad(0, 200, 0, 215, 730, 215, 750, 200);
   fill(colors.lightCream);
   rect(0, 210, 730, 5);
-  
   fill(colors.shelfBrown);
   rect(0, 375, 750, 50);
   fill(colors.mediumBrown1);
@@ -385,16 +429,15 @@ function artworkBackground() {
   fill(colors.lightCream);
   rect(0, 440, 730, 5);
   
+  // Lights
    let lightBrightness = 255;
   if (lightFlickering && lightOn) {
     lightBrightness = 200 + sin(frameCount * 0.1) * 55;
   } else if (!lightOn) {
     lightBrightness = 0;
   }
-
   
-  // Light
-fill('#390000');
+  fill('#390000');
   rect(1048, 0, 5, 125); 
   arc(1050, 148, 80, 15, 0, PI);
   for (let r = 25; r > 0; r -= 4) {
@@ -408,18 +451,27 @@ fill('#390000');
     
   // Menu
   fill('#390000');
-    stroke('#52100B')
-    strokeWeight(1)
+  stroke('#52100B')
+  strokeWeight(1)
   rect(875, 250, 150, 300, 3)
-      stroke(colors.lightCream);
+  stroke(colors.lightCream);
   fill('#5C0000');
   rect(885, 260, 130, 280, 3)
-    noStroke()
-
+  noStroke()
+  
+  // Menu Text
+  fill('rgb(255,238,221)')
+  textSize(13)
+  textAlign(CENTER);
+  text('Today\'s Specials', 950, 300)
+  text(specials[0], 950, 350)
+  text(specials[1], 950, 400)
+  text(specials[2], 950, 450)
+  text(specials[3], 950, 500)
+  
   // Window
   noFill();
-      stroke('#4B2301')
-
+  stroke('#4B2301')
   strokeWeight(7);
   rect(1050, 252, 200, 297)
   stroke('#3C2A26')
@@ -433,31 +485,30 @@ fill('#390000');
   rect(1050, 252, 200, 297);
 
   // Draw bg mountains
-noStroke();
-fill('#0A083A'); 
-beginShape();
-vertex(1050, 460);
-vertex(1080, 380); 
-vertex(1140, 300);
-vertex(1200, 360); 
-endShape(CLOSE);
+  noStroke();
+  fill('#0A083A'); 
+  beginShape();
+  vertex(1050, 460);
+  vertex(1080, 380); 
+  vertex(1140, 300);
+  vertex(1200, 360); 
+  endShape(CLOSE);
 
-// Draw front mountains
-fill('#030039'); 
-beginShape();
-vertex(1050, 400);
-vertex(1100, 320); 
-vertex(1150, 400);
-vertex(1200, 300);
-vertex(1250, 400);
-vertex(1250, 549); 
-vertex(1050, 549); 
-endShape(CLOSE);
-
+  // Draw front mountains
+  fill('#030039'); 
+  beginShape();
+  vertex(1050, 400);
+  vertex(1100, 320); 
+  vertex(1150, 400);
+  vertex(1200, 300);
+  vertex(1250, 400);
+  vertex(1250, 549); 
+  vertex(1050, 549); 
+  endShape(CLOSE);
   
-// Draw snowflakes
-fill('#FFFFFF'); 
-for (let i = 0; i < snowflakes.length; i++) {
+  // Draw snowflakes
+  fill('#FFFFFF'); 
+  for (let i = 0; i < snowflakes.length; i++) {
     let flake = snowflakes[i];
     flake.y += flake.flakespeed;
     if (flake.y <= 550) {
@@ -466,7 +517,7 @@ for (let i = 0; i < snowflakes.length; i++) {
     if (flake.y > height) {
       flake.y = 252; 
     }
-}
+  }
   pop();
     
   // Glass panes
@@ -474,25 +525,47 @@ for (let i = 0; i < snowflakes.length; i++) {
   rect(1050, 252, 200, 297)
         
   strokeWeight(8)
-  
   stroke('#4B2301')
   line(1150, 252, 1150, 548)
   line(1050, 400, 1250, 400)
-    
   strokeWeight(6)
   stroke('#3C2A26')
+  
   // Window 
   line(1150, 252, 1150, 548)
   line(1050, 400, 1250, 400)
-
   strokeWeight(1)
   noStroke()
-
   
+  // Ice
+  noFill()
+  strokeWeight(1)
+  stroke('#FFFFFF')
+  rect(710, 395, 10, 10)
+  rect(695, 395, 10, 10)
+  rect(682, 397, 10, 10)
+  rect(723, 396, 10, 10)
+
+  noStroke()
+  fill('#899DA5'); 
+  arc(710, 435, 45, 35, PI, TWO_PI);
+  fill('#AEC0C9'); // Bucket color
+    arc(710, 400, 70, 55, 0, PI);
+  
+  // Draw the lemons
+  fill('#E6C54F');
+  ellipse(625, 399, 35, 25); // Lemon 1
+  ellipse(608, 399, 10, 5); // Lemon 2
+  ellipse(642, 399, 10, 5); // Lemon 2
+
+  // Draw the bowl
+  noStroke();
+  fill('#BBA58F');
+  arc(625, 435, 45, 35, PI, TWO_PI); // Bowl base
+  fill('#D8C1A8');
+  arc(625, 400, 70, 55, 0, PI); // Bowl body
 
 }
-
-
 
 function drawStool(baseX, baseY, seatX, seatY) {
   fill(colors.darkGray);
@@ -503,7 +576,55 @@ function drawStool(baseX, baseY, seatX, seatY) {
   ellipse(seatX, seatY - 50, 150, 25);
   fill(colors.darkRed1);
   ellipse(seatX, baseY, 150, 25); 
+
 }
+
+function drawGlass(x, y, w, h, liquidColor) {
+  // Draw the liquid in the glass
+  noStroke();
+  fill(liquidColor); 
+  rect(x, y + h + 5 - fillLevel, w, fillLevel, 7, 7, 10, 10);  
+
+  // Draw the glass body
+  stroke(colors.glassOutline);
+  strokeWeight(1);
+  fill(colors.glassFill);
+  line(x, y + 10, x, y + h);         
+  line(x + w, y + 10, x + w, y + h); 
+  fill(colors.glassFill);
+  if (fillLevel === 0) {
+    ellipse(x + w / 2, y + h, w, 10); 
+  } else {
+    arc(x + w / 2, y + h, w, 10, 0, PI, OPEN); 
+  }
+  noFill();
+  stroke(colors.glassOutline);
+  strokeWeight(3);
+  arc(x - 2, y + h / 2, 30, 40, PI / 2, 3 * PI / 2);  
+  strokeWeight(1);
+  fill(colors.glassFill);
+  ellipse(x + w / 2, y + 10, w, 10);  
+  noStroke(); 
+}
+
+// Draw the bell
+function drawBell(x, y, size) {
+  // Vibration Logic
+  if (bellClicked) {
+    bellVibrationAmplitude *= bellVibrationDecay; 
+    if (abs(bellVibrationAmplitude) < 0.1) {
+      bellClicked = false; 
+      bellVibrationAmplitude = 2;
+    }
+  }
+  let bellXOffset = bellClicked ? sin(frameCount * bellVibrationFrequency) * bellVibrationAmplitude : 0;
+  fill(150);
+  stroke(100);
+  ellipse(x + size / 2 + bellXOffset, y + size * 0.32, size * 0.2, size * 0.2); 
+  arc(x + size / 2 + bellXOffset, y + size * 0.8, size, size, PI, TWO_PI); 
+  rect(x + bellXOffset, y + 38, size, 3, 5);
+}
+
 
 function keyTyped() {
   if (key === " ") {
