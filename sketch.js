@@ -1,3 +1,5 @@
+// Mixologist's Workstation by Zac Morehouse - u7637337
+
 // Colours list
 let colors = {
   darkBrown1: '#40292C',
@@ -47,7 +49,7 @@ let glassFilled = false;
 let bottles = [];           
 
 // Glass Vars
-let glassX = 50;           
+let glassX = 75;           
 let glassY = 525;           
 let glassWidth = 65;       
 let glassHeight = 110;      
@@ -78,9 +80,13 @@ let lemonSliceAdded = false;
 let lemonSliceOffsetX = 25;
 let lemonSliceOffsetY =25; 
 
+
+// Font
+let Poppins;
+
 function preload() {
 
-
+  Poppins = loadFont('/assets/Poppins-SemiBold.otf')
 }
 
 
@@ -88,6 +94,8 @@ function setup() {
   createCanvas(1280, 800);
   artworkBackground();
   
+  textFont(Poppins)
+
   // Add new bottles to array
   bottles.push(new Bottle(10, 35, 45, 100, '#D71818', increment)); 
   bottles.push(new Bottle(70, 35, 45, 100, '#9A2424', increment)); 
@@ -216,9 +224,9 @@ strokeWeight(2)
   if (fillLevel >= maxFill) {
     glassFilled = true;
     fill(0);
-    textSize(24);
+    textSize(20);
     textAlign(CENTER);
-    fill('white')
+      fill('rgb(255,238,221)')
     text("Enjoy your drink!", glassX + glassWidth / 2, glassY - 10);
   }
   
@@ -561,10 +569,15 @@ function artworkBackground() {
   textSize(13)
   textAlign(CENTER);
   text('Today\'s Specials', 950, 300)
-  text(specials[0], 950, 350)
-  text(specials[1], 950, 400)
-  text(specials[2], 950, 450)
-  text(specials[3], 950, 500)
+  
+  for (let i = 0; i < specials.length; i++) {
+    let special = specials[i];
+    if (special && typeof special === 'string' && special.trim() !== '') {
+      text(special, 950, 350 + i * 50);
+    } else {
+      text("Special Unavailable", 950, 350 + i * 50);
+    }
+  }
   
   // Window
   noFill();
@@ -932,4 +945,3 @@ function keyTyped() {
     saveCanvas("thumbnail.png");
   }
 }
-
