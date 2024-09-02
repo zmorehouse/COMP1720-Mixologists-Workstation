@@ -10,7 +10,7 @@
 - [8] George Profenza. 2024. Mouse Hovering/Mouse Clicked over image p5.js. Retrieved from https://stackoverflow.com/questions/78406196/mouse-hovering-mouse-clicked-over-image-p5-js 
 
 ## Artwork Inspiration
-There were a number of interactive games and spaces that inspired my creations. Notably, the Club Penguin Cafe and Bartender:The Right Mix both helped to inform my key premise and the layout of the workstation. These works, alongside Van Gogh’s ‘Cafe Terrace at Night’, also provided points of reference for the ambience and style of the scene. 
+There were a number of interactive games and spaces that inspired my artwork. Notably, the Club Penguin Cafe and Bartender:The Right Mix both helped to inform my key premise and the layout of the workstation. These works, alongside Van Gogh’s ‘Cafe Terrace at Night’, also provided points of reference for the ambience and style of the scene. 
 - [1] Harry Phillips. 2022. Why a generation in distress turned back to Club Penguin. Retrieved from https://medium.com/@harrymichaelphillips1996/why-a-generation-in-distress-turned-back-to-club-penguin-5424ecdbf54b 
 - [2] Plug-In Media, 2007. Bartender : The Right Mix. Retrieved from https://www.crazygames.com/game/bartender-the-right-mix 
 - [3] Van Gogh, 1888. Terrace of a Café at Night. Retrieved from https://www.vangoghmuseum.nl/en/art-and-stories/stories/where-is-terrace-of-a-cafe-at-night
