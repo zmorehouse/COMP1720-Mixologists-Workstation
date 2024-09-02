@@ -86,7 +86,7 @@ let Poppins;
 
 function preload() {
 
-  Poppins = loadFont('/assets/Poppins-SemiBold.otf')
+  Poppins = loadFont('assets/Poppins-SemiBold.otf')
 }
 
 
