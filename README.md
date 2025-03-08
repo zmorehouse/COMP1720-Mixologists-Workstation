@@ -4,24 +4,30 @@ Mixologists Workstation is an interactive artwork created in p5.js
 
 ## Artists Statement
 
-My artwork depicts a friendly monster residing on a distant moon. The piece seeks to explore the concept of anti-gravity - using subtle and dynamic body movements to invoke a sense of weightlessness and otherworldliness. The alien, with it's lightweight and fluid form, moves freely - its body parts swaying independently in an almost dreamlike motion. Behind it, a distant universe flies by, depicting the aliens' uniquely cosmic environment. This interplay of movement and stillness seeks to capture the essence of an otherworldly habitat, inviting the viewer to contemplate the unique challenges and opportunities of a being in such a setting.
+My artwork explores a mixologist’s workstation, set in a high end bar on a snowy night. The piece seeks to immerse viewers in a cozy and warming atmosphere, providing a sense of escape and tranquility. By contrasting gentle snowfall with warm lighting, the artwork depicts a relaxing space, offering viewers a momentary retreat from the hustle and bustle of everyday life.
 
-The alien itself holds two items - a rocket ship and a UFO. With no other points of reference, the viewer is left to contemplate: Are these merely toys, or does the alien exist on an incomprehensible scale? What else might we be missing? Is the alien's smile genuine, or is there something more sinister lurking beneath it? In this way, my artwork not only serves as a testament to the storytelling capabilities that emerge from the intersection of technology and artistic expression, but simultaneously invites viewers to ponder the mysteries of extraterrestrial existence.
+The piece features a variety of interactive elements, allowing viewers to craft their drink of choice and encouraging them to experiment with different color combinations and ingredients. This interactive process is designed to be rewarding, offering a personalised experience that gratifies the viewer as they see the direct impact of their choices coming to life. The act of creating a drink becomes a contemplative journey, where each decision feels meaningful, contributing to a final goal.
+
+Through this, my work aims to invite viewers to take a step back and intentionally consider their actions. I hope that, in doing so, viewers are inspired to reflect on the spaces we inhabit and how the choices we make within them can shape our individual experiences and emotions.
 
 ## References
 ### Code References
 
-    [1] jesse_harding. 2022. random stars. Retrieved from https://editor.p5js.org/jesse_harding/sketches/0szF7gcAx
-    [2] Computing Masterclass. 2020. Plane Horizontal Scrolling Tutorial in p5.js. Retrieved from https://www.youtube.com/watch?v=4Ud3oX-cKxc
-    [3] Computing Masterclass. 2020. Vertical Scrolling Rocket Ship Animation using p5.js. Retrieved from https://www.youtube.com/watch?v=cl5FW_zgY_Q
-    [4] Craig Melville. 2024. Shooting stars with p5.js. Retrieved from https://codepen.io/acekreations/pen/pYQOxP
-    [5] The Coding Train. 2015. JavaScript Objects - p5.js Tutorial. Retrieved from https://www.youtube.com/watch?v=-e5h4IGKZRY
+    [1] Steve's Makerspace. 2022. Color Mixing for Generative Artists in p5.js. Retrieved from https://www.youtube.com/watch?v=LEBo-yqNs1w
+    [2] Nina Scholz. 2017. Calculating color value (r,g,b) using javascript. Retrieved from https://stackoverflow.com/questions/45280049/calculating-color-value-r-g-b-using-javascript
+    [3] amygoodchild. 2023. Color mixing. Retrieved from https://editor.p5js.org/amygoodchild/sketches/T2jm6DBz9
+    [4] Kubi, 2019. Hex to RGB. Retrieved from https://editor.p5js.org/Kubi/sketches/IJp2TXHNJ
+    [5] jesse_harding. 2022. random stars. Retrieved from https://editor.p5js.org/jesse_harding/sketches/0szF7gcAx
+    [6] shilpaamehta. 2022. Falling snow. Retrieved from https://editor.p5js.org/shilpaamehta/sketches/Yll34qBr8
+    [7] The Coding Train. 2017. 6.2: Classes in JavaScript with ES6 - p5.js Tutorial. Retrieved from https://www.youtube.com/watch?v=T-HGdc8L-7w
+    [8] George Profenza. 2024. Mouse Hovering/Mouse Clicked over image p5.js. Retrieved from https://stackoverflow.com/questions/78406196/mouse-hovering-mouse-clicked-over-image-p5-js
 
-### Artwork Inspiration
-The two below sources informed my initial research. While my final piece took a much friendly, and less abstract approach to alien depiction - they still helped shape the key ideas my artwork was centred around.
+## Artwork Inspiration
+### There were a number of interactive games and spaces that inspired my artwork. Notably, the Club Penguin Cafe and Bartender:The Right Mix both helped to inform my key premise and the layout of the workstation. These works, alongside Van Gogh’s ‘Cafe Terrace at Night’, also provided points of reference for the ambience and style of the scene.
 
-    [1] Racine Art Museum. 2021. Alien Invasion: (Un)Familiar Forms in Contemporary Art. Retrieved from https://www.ramart.org/exhibit/alien-invasion-unfamiliar-forms/
-    [2] Matt Domino. 2019. The Nightmarish Works of H.R. Giger, the Artist behind “Alien”. Retrieved from https://www.artsy.net/article/artsy-editorial-nightmarish-works-hr-giger-artist-alien
+    [1] Harry Phillips. 2022. Why a generation in distress turned back to Club Penguin. Retrieved from https://medium.com/@harrymichaelphillips1996/why-a-generation-in-distress-turned-back-to-club-penguin-5424ecdbf54b
+    [2] Plug-In Media, 2007. Bartender : The Right Mix. Retrieved from https://www.crazygames.com/game/bartender-the-right-mix
+    [3] Van Gogh, 1888. Terrace of a Café at Night. Retrieved from https://www.vangoghmuseum.nl/en/art-and-stories/stories/where-is-terrace-of-a-cafe-at-night
 
 ## Instructions
 Press the bell to reset your drink (or run the sketch again, your choice!)
